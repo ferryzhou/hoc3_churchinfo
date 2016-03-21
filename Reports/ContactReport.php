@@ -256,15 +256,12 @@ class PDF_Directory extends ChurchInfoReport {
     // This prints the family name in BOLD
     function Print_Name($sName)
     {
-        $this->SetFont($this->_Font,'BU',$this->_Char_Size);
-//        $_PosX = $this->_Column == 0 ? $this->_Margin_Left : $this->w - $this->_Margin_Left - $this->_ColWidth;
-         $_PosX = ($this->_Column*($this->_ColWidth+$this->_Gutter)) + $this->_Margin_Left;
+        //$this->SetFont($this->_Font,'BU',$this->_Char_Size);
+        $_PosX = ($this->_Column*($this->_ColWidth+$this->_Gutter)) + $this->_Margin_Left + $this->_ColWidth/4;
         $_PosY = $this->GetY();
         $this->SetXY($_PosX, $_PosY);
-//        $this->MultiCell($this->_ColWidth, 5, $sName);
-	$this->MultiCell($this->_ColWidth, $this->_LS, $sName);
-//        $this->SetY($_PosY + $this->NbLines($this->_ColWidth, $sName) * 5);
-	$this->SetY($_PosY + $this->NbLines($this->_ColWidth, $sName) * $this->_LS);
+        $this->MultiCell($this->_ColWidth, $this->_LS, $sName);
+        $this->SetY($_PosY + $this->NbLines($this->_ColWidth, $sName) * $this->_LS);
         $this->SetFont($this->_Font,'',$this->_Char_Size);
     }
 
@@ -327,13 +324,22 @@ class PDF_Directory extends ChurchInfoReport {
         if ($bDirFamilyWork && strlen($fam_WorkPhone))
             $sFamilyStr .= "   " . gettext('Work') . ": " . ExpandPhoneNumber($fam_WorkPhone, $fam_Country, $bWierd) . "\n";
         if ($bDirFamilyCell && strlen($fam_CellPhone))
-            $sFamilyStr .= "   " . gettext('Cell') . ": " . ExpandPhoneNumber($fam_CellPhone, $fam_Country, $bWierd) . "\n";
+            $sFamilyStr .= ExpandPhoneNumber($fam_CellPhone, $fam_Country, $bWierd) . "\n";
         if ($bDirFamilyEmail && strlen($fam_Email))
             $sFamilyStr .= "   " . gettext('Email') . ": " . $fam_Email . "\n";
         if ($bDirWedding && ($fam_WeddingDate > 0))
             $sFamilyStr .= "   " . gettext('Wedding') . ": " . Date("m/d/Y", strtotime($fam_WeddingDate)) . "\n";
 
         return $sFamilyStr;
+    }
+    
+    function addName($aRow)
+    {
+        extract($aRow);
+        if(strlen($this->sRecordName)) {
+            $this->sRecordName .= "\n";
+        }
+        $this->sRecordName .= $per_FirstName . " " . $per_LastName;
     }
 
     // This function formats the string for the head of household.
@@ -400,7 +406,7 @@ class PDF_Directory extends ChurchInfoReport {
         }
         if ($bDirPersonalCell && strlen($per_CellPhone)) {
             $TempStr = ExpandPhoneNumber($per_CellPhone, $sCountry, $bWierd);
-            $sHeadStr .= "   " . gettext("Cell") . ": " . $TempStr .= "\n";
+            $sHeadStr .= $TempStr .= "\n";
         }
         if ($bDirPersonalEmail && strlen($per_Email))
             $sHeadStr .= "   " . gettext("Email") . ": " . $per_Email .= "\n";
@@ -463,7 +469,7 @@ class PDF_Directory extends ChurchInfoReport {
         }
         if ($bDirPersonalCell && strlen($per_CellPhone)) {
             $TempStr = ExpandPhoneNumber($per_CellPhone, $sCountry, $bWierd);
-            $sMemberStr .= "   " . gettext("Cell") . ": " . $TempStr .= "\n";
+            $sMemberStr .= $TempStr .= "\n";
         }
         if ($bDirPersonalEmail && strlen($per_Email))
             $sMemberStr .= "   " . gettext("Email") . ": " . $per_Email .= "\n";
@@ -701,7 +707,8 @@ while ($aRow = mysql_fetch_array($rsRecords))
         if (mysql_num_rows($rsPerson) > 0)
         {
             $aHead = mysql_fetch_array($rsPerson);
-            $OutStr .= $pdf->sGetHeadString($rsCustomFields, $aHead);
+            $pdf->addName($aHead);
+            //$OutStr .= $pdf->sGetHeadString($rsCustomFields, $aHead);
             $bNoRecordName = false;
         }
 
@@ -714,7 +721,8 @@ while ($aRow = mysql_fetch_array($rsRecords))
         if (mysql_num_rows($rsPerson) > 0)
         {
             $aSpouse = mysql_fetch_array($rsPerson);
-            $OutStr .= $pdf->sGetHeadString($rsCustomFields, $aSpouse);
+            $pdf->addName($aSpouse);
+            //$OutStr .= $pdf->sGetHeadString($rsCustomFields, $aSpouse);
             $bNoRecordName = false;
         }
 
@@ -730,8 +738,9 @@ while ($aRow = mysql_fetch_array($rsRecords))
 
         while ($aRow = mysql_fetch_array($rsPerson))
         {
-           $OutStr .= $pdf->sGetMemberString($aRow);
-           $OutStr .= $pdf->sGetCustomString($rsCustomFields, $aRow);
+            $pdf->addName($aRow);
+//           $OutStr .= $pdf->sGetMemberString($aRow);
+//           $OutStr .= $pdf->sGetCustomString($rsCustomFields, $aRow);
         }
     }
     else
@@ -740,7 +749,7 @@ while ($aRow = mysql_fetch_array($rsRecords))
             $pdf->sLastName = $per_LastName;
         else
             $pdf->sLastName = $fam_Name;
-        $pdf->sRecordName = $pdf->sLastName . ", " . $per_FirstName;
+        $pdf->sRecordName = $per_FirstName . " " . $pdf->sLastName;
         if (strlen ($per_Suffix))
 			$pdf->sRecordName .= " " . $per_Suffix;
 
@@ -776,7 +785,7 @@ while ($aRow = mysql_fetch_array($rsRecords))
         }
         if (($bDirFamilyCell || $bDirPersonalCell) && strlen($sCellPhone)) {
             $TempStr = ExpandPhoneNumber($sCellPhone, $sDefaultCountry, $bWierd);
-            $OutStr .= "   " . gettext("Cell") . ": " . $TempStr . "\n";
+            $OutStr .= $TempStr . "\n";
         }
         if (($bDirFamilyEmail || $bDirPersonalEmail) && strlen($sEmail))
             $OutStr .= "   " . gettext("Email") . ": " . $sEmail . "\n";
