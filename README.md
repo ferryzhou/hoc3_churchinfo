@@ -10,6 +10,7 @@ Go Setup
 1. go get github.com/tools/godep
 1. go get github.com/jung-kurt/gofpdf
 1. godep save
+1. Install vim-go ide: http://farazdagi.com/blog/2015/vim-as-golang-ide/
 1. vim -u ~/.vimrc.go 
 
 Contributors
