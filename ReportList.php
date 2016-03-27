@@ -44,7 +44,7 @@ require 'Include/Header.php';
 <?php } ?>
 
 	<p>
-	<a class="MediumText" href="ContactReports.php"><?php echo gettext('Members Contacts'); ?></a>
+	<a class="MediumText" href="ContactReports.php"><?php echo gettext('Contacts Book'); ?></a>
 	<br>
 	<?php echo gettext('Printable contact directory of all members, grouped by family where assigned'); ?>
 	</p>
