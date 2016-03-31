@@ -49,6 +49,12 @@ require 'Include/Header.php';
 	<?php echo gettext('Printable contact directory of all members, grouped by family where assigned'); ?>
 	</p>
 
+	<p>
+	<a class="MediumText" href="ContactReports2014Style.php"><?php echo gettext('Contacts Book 2014 Style'); ?></a>
+	<br>
+	<?php echo gettext('Printable contact directory of all members, grouped by family where assigned'); ?>
+	</p>
+
 <?php /*
 <p>
 <a href=''><?php echo gettext('Members Directory w/Photos'); ?></a>
