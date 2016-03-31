@@ -257,7 +257,7 @@ class PDF_Directory extends ChurchInfoReport {
         $_PosX = ($this->_Column*($this->_ColWidth+$this->_Gutter)) + $this->_Margin_Left;
         $_PosY = $this->GetY();
         $this->SetXY($_PosX, $_PosY);
-        $this->Cell($this->_ColWidth, $this->_LS, $sLetter, "B",1,"L",0);
+        $this->Cell($this->_ColWidth * 2 / 3, $this->_LS, $sLetter, "B",1,"L",0);
         
         // restore color
         $this->SetTextColor(0);
@@ -368,29 +368,35 @@ class PDF_Directory extends ChurchInfoReport {
 
         foreach ($persons as $person) {
           $this->Print_Person($person);
-          $this->SetY($this->GetY() + $this->_LS);
         }
 
         $_PosX = ($this->_Column*($this->_ColWidth+$this->_Gutter)) + $this->_Margin_Left;
         $_PosY = $this->GetY();
 
-        $this->SetXY($_PosX, $_PosY);
-        
+        $this->SetXY($_PosX + $this->_ColWidth/10, $_PosY);
         $this->MultiCell($this->_ColWidth, $this->_LS, iconv("UTF-8","ISO-8859-1",$addrPhone->Address), 0, 'L');
+        $this->SetXY($_PosX, $_PosY);
+        $this->MultiCell($this->_ColWidth, $this->_LS, iconv("UTF-8","ISO-8859-1",$addrPhone->Phone), 0, 'R');
         $this->SetY($this->GetY() + $this->_LS);
     }
     
     // This prints the family name in BOLD
     function Print_Person($person)
     {
-        $enName = iconv("UTF-8","ISO-8859-1",$person->Name);
-        //$this->SetFont($this->_Font,'BU',$this->_Char_Size);
-        $_PosX = ($this->_Column*($this->_ColWidth+$this->_Gutter)) + $this->_Margin_Left + $this->_ColWidth/4;
+        $_PosX = ($this->_Column*($this->_ColWidth+$this->_Gutter)) + $this->_Margin_Left;
         $_PosY = $this->GetY();
+        $this->SetFont($this->_Font,'B',$this->_Char_Size);
         $this->SetXY($_PosX, $_PosY);
-        $this->MultiCell($this->_ColWidth, $this->_LS, $enName);
-        $this->SetY($_PosY + $this->NbLines($this->_ColWidth, $sName) * $this->_LS);
+        $this->MultiCell($this->_ColWidth, $this->_LS, $person->Name, 0, 'L');
+        
         $this->SetFont($this->_Font,'',$this->_Char_Size);
+        $this->SetXY($_PosX + $this->_ColWidth/4, $_PosY);
+        $this->MultiCell($this->_ColWidth, $this->_LS, $person->Name . " " . $person->Email);
+        
+        $this->SetFont($this->_Font,'',$this->_Char_Size);
+        $this->SetXY($_PosX, $_PosY);
+        $this->MultiCell($this->_ColWidth, $this->_LS, $person->Phone, 0, 'R');
+        $this->SetY($this->GetY() + $this->_LS);
     }
 }
 
