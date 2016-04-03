@@ -281,7 +281,7 @@ class PDF_Directory extends ChurchInfoReport {
             extract($rowCustomField);
             $sCustom = "bCustom".$custom_Order;
             $currentFieldData = trim($aCustomData[$custom_Field]);
-            if($this->_Custom[$custom_Order] && $custom_Name == "Chinese Name"){
+            if($this->_Custom[$custom_Order] && $custom_Name == "Chinese Name 姓名"){
               return $currentFieldData;
             }
         }
