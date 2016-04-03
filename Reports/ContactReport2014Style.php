@@ -69,7 +69,7 @@ class PDF_Directory extends ChurchInfoReport {
             //Move to the right
             $this->SetX($this->_Margin_Left);
             //Framed title
-            $this->Cell($this->w - ($this->_Margin_Left*2),10,$this->sChurchName . " - " . gettext("Directory"),1,0,'C');
+            $this->Cell($this->w - ($this->_Margin_Left*2),10,$this->sChurchName . " - " . gettext("Directory"),'B',0,'C');
             $this->SetY(25);
         }
     }
@@ -83,12 +83,12 @@ class PDF_Directory extends ChurchInfoReport {
             //Go to 1.7 cm from bottom
             $this->SetY(-17);
             //Select Arial italic 8
-            $this->SetFont($this->_Font,'I',8);
+            $this->SetFont($this->_Font,'B', $this->_Char_Size);
             //Print centered page number
             $iPageNumber = $this->PageNo();
             if ($bDirUseTitlePage)
                 $iPageNumber--;
-            $this->Cell(0,10, gettext("Page") . " " . $iPageNumber."    ".date("M d, Y g:i a",time()),0,0,'C');
+            $this->Cell(0,10, $iPageNumber,0,0,'C');
         }
     }
 
@@ -387,7 +387,7 @@ class PDF_Directory extends ChurchInfoReport {
         $this->MultiCell($this->_ColWidth, $this->_LS, $person->ChineseName, 0, 'L');
         
         $this->SetFont($this->_Font,'',$this->_Char_Size);
-        $this->SetXY($_PosX + $this->_ColWidth/4, $_PosY);
+        $this->SetXY($_PosX + $this->_ColWidth/6, $_PosY);
         $this->MultiCell($this->_ColWidth, $this->_LS, $person->Name . " " . $person->Email);
         
         $this->SetFont($this->_Font,'',$this->_Char_Size);
