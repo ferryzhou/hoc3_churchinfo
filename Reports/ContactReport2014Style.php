@@ -265,34 +265,27 @@ class PDF_Directory extends ChurchInfoReport {
         $this->SetY($this->GetY() + $this->_LS);
     }
 
-    function sGetCustomString($rsCustomFields, $aRow){
+    function sGetChineseName($rsCustomFields, $aRow){
         $numCustomFields = mysql_num_rows($rsCustomFields);
-        if ($numCustomFields > 0) {
-            extract($aRow);
-            $sSQL = "SELECT * FROM person_custom WHERE per_ID = " . $per_ID;
-            $rsCustomData = RunQuery($sSQL);
-            $aCustomData = mysql_fetch_array($rsCustomData, MYSQL_BOTH);
-            $numCustomData = mysql_num_rows($rsCustomData);
-            mysql_data_seek($rsCustomFields,0);
-            $OutStr = ""; 
-            while ( $rowCustomField = mysql_fetch_array($rsCustomFields, MYSQL_BOTH) ){
-                extract($rowCustomField);
-                $sCustom = "bCustom".$custom_Order;
-                if($this->_Custom[$custom_Order]){
-                	
-                	$currentFieldData = displayCustomField($type_ID, $aCustomData[$custom_Field], $custom_Special);
-                	
-//                    $currentFieldData = trim($aCustomData[$custom_Field]);
-                    if($currentFieldData != ""){
-                        $OutStr .= "   " . $custom_Name . ": " . $currentFieldData .= "\n";
-                    }
-                }
-            }
-            return $OutStr;
-        }else{
-            return "";
+        if ($rsCustomFields == 0) {
+          return "no custom fields";
         }
-        
+        extract($aRow);
+        $sSQL = "SELECT * FROM person_custom WHERE per_ID = " . $per_ID;
+        $rsCustomData = RunQuery($sSQL);
+        $aCustomData = mysql_fetch_array($rsCustomData, MYSQL_BOTH);
+        $numCustomData = mysql_num_rows($rsCustomData);
+        mysql_data_seek($rsCustomFields,0);
+        $OutStr = ""; 
+        while ( $rowCustomField = mysql_fetch_array($rsCustomFields, MYSQL_BOTH) ){
+            extract($rowCustomField);
+            $sCustom = "bCustom".$custom_Order;
+            $currentFieldData = trim($aCustomData[$custom_Field]);
+            if($this->_Custom[$custom_Order] && $custom_Name == "Chinese Name"){
+              return $currentFieldData;
+            }
+        }
+        return "not found";
     }
 
     // This function formats the string for the address phone info
@@ -356,7 +349,7 @@ class PDF_Directory extends ChurchInfoReport {
         if (strlen($per_Email)) $pHead->Email = $per_Email;
         
         // TODO(ferryzhou): add chinese name from custom field.
-        //$sHeadStr .= $this->sGetCustomString($rsCustomFields, $aHead);
+        $pHead->ChineseName = $this->sGetChineseName($rsCustomFields, $aHead);
 
         return $pHead;
     }
@@ -387,7 +380,11 @@ class PDF_Directory extends ChurchInfoReport {
         $_PosY = $this->GetY();
         $this->SetFont($this->_Font,'B',$this->_Char_Size);
         $this->SetXY($_PosX, $_PosY);
-        $this->MultiCell($this->_ColWidth, $this->_LS, $person->Name, 0, 'L');
+        
+        //$this->AddFont('FZ','','fz_chinese.ttf',true);
+        $this->AddFont('CNB','','fzck.ttf',true);
+        $this->SetFont('CNB','',$this->_Char_Size + 2);
+        $this->MultiCell($this->_ColWidth, $this->_LS, $person->ChineseName, 0, 'L');
         
         $this->SetFont($this->_Font,'',$this->_Char_Size);
         $this->SetXY($_PosX + $this->_ColWidth/4, $_PosY);
