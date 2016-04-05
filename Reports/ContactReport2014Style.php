@@ -381,8 +381,7 @@ class PDF_Directory extends ChurchInfoReport {
         $this->SetFont($this->_Font,'B',$this->_Char_Size);
         $this->SetXY($_PosX, $_PosY);
         
-        //$this->AddFont('FZ','','fz_chinese.ttf',true);
-        $this->AddFont('CNB','','fzck.ttf',true);
+        $this->AddFont('CNB','','DroidSansFallback.ttf',true);
         $this->SetFont('CNB','',$this->_Char_Size + 2);
         $this->MultiCell($this->_ColWidth, $this->_LS, $person->ChineseName, 0, 'L');
         
