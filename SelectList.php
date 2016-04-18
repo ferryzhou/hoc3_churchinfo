@@ -937,6 +937,11 @@ if ($iMode == 1 || $iMode == 2) {
 		echo '<td><a href="SelectList.php?mode=' .$sMode. '&amp;type=' .$iGroupTypeMissing;
 		echo '&amp;Sort=name&amp;Filter=' .$sFilter. '">' . gettext("Name") . '</a></td>';
 
+		echo "<td>" . gettext("ChineseName") . "</td>";
+		echo "<td>" . gettext("Phone") . "</td>";
+		echo "<td>" . gettext("Email") . "</td>";
+		
+/*  // hide original column 3		
 		echo '<td><input type="hidden" name="mode" value="' .$sMode. '">';
 		if($iGroupTypeMissing > 0) 
 			echo '<input type="hidden" name="type" value="' .$iGroupTypeMissing. '">';
@@ -971,7 +976,7 @@ if ($iMode == 1 || $iMode == 2) {
 		}
 
 		echo '</select></td>';
-
+*/
 		echo '<td><a href="SelectList.php?mode=' .$sMode. '&amp;type=' .$iGroupTypeMissing;
 		echo '&amp;Sort=family&amp;Filter=' .$sFilter. '">' . gettext("Family") . '</a></td>';
 
@@ -1068,10 +1073,16 @@ if ($iMode == 1 || $iMode == 2) {
 			echo "<td><a href=\"PersonView.php?PersonID=" .$per_ID. "\">";
 			echo FormatFullName($per_Title, $per_FirstName, $per_MiddleName, 
 								$per_LastName, $per_Suffix, 3);
-		  echo "&nbsp;(" . $per_cnName . ")";
+		  //echo "&nbsp;(" . $per_cnName . ")";
 			echo "</a>&nbsp;</td>";
 
+			echo "<td>" . $per_cnName . "</td>";
+			echo "<td>" . SelectWhichInfo(ExpandPhoneNumber($per_CellPhone,$fam_Country,$dummy),
+        		        ExpandPhoneNumber($fam_CellPhone,$fam_Country,$dummy), True) . "</td>";
+      echo "<td>" . $per_Email . "</td>";
+/*		
 			echo "<td>";
+			
 			if ($sPersonColumn3 == "Classification") 
  				echo $aClassificationName[$per_cls_ID]; 
 			elseif ($sPersonColumn3 == "Family Role")
@@ -1084,7 +1095,7 @@ if ($iMode == 1 || $iMode == 2) {
 				}
 			}
 			echo "&nbsp;</td>";
-
+*/
 			echo "<td>";
 			if ($fam_Name != "") {
 				echo "<a href=\"FamilyView.php?FamilyID=" . $fam_ID . "\">" . $fam_Name;
