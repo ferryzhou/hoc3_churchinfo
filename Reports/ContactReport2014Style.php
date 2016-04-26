@@ -370,7 +370,7 @@ class PDF_Directory extends ChurchInfoReport {
         $this->MultiCell($this->_ColWidth, $this->_LS, iconv("UTF-8","ISO-8859-1",$addrPhone->Address), 0, 'L');
         $this->SetXY($_PosX, $_PosY);
         $this->MultiCell($this->_ColWidth, $this->_LS, iconv("UTF-8","ISO-8859-1",$addrPhone->Phone), 0, 'R');
-        $this->SetY($this->GetY() + $this->_LS);
+        $this->SetY($this->GetY() + $this->_LS * 2);
     }
     
     // This prints the family name in BOLD
