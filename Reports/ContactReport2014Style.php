@@ -381,14 +381,27 @@ class PDF_Directory extends ChurchInfoReport {
         $this->SetFont($this->_Font,'B',$this->_Char_Size);
         $this->SetXY($_PosX, $_PosY);
         
-        $this->AddFont('CNB','','DroidSansFallback.ttf',true);
-        $this->SetFont('CNB','',$this->_Char_Size + 2);
-        $this->MultiCell($this->_ColWidth, $this->_LS, $person->ChineseName, 0, 'L');
-        
-        $this->SetFont($this->_Font,'',$this->_Char_Size);
-        $this->SetXY($_PosX + $this->_ColWidth/6, $_PosY);
-        $this->MultiCell($this->_ColWidth, $this->_LS, $person->Name . " " . $person->Email);
-        
+		  if (strlen($person->ChineseName)) {
+			  $this->AddFont('CNB','','DroidSansFallback.ttf',true);
+			  $this->SetFont('CNB','',$this->_Char_Size + 2);
+			  $this->MultiCell($this->_ColWidth, $this->_LS, $person->ChineseName, 0, 'L');
+			
+			  $this->SetFont($this->_Font,'',$this->_Char_Size);
+			  $this->SetXY($_PosX + $this->_ColWidth/6, $_PosY);
+			  if (strlen($person->Email)) {
+				  $this->MultiCell($this->_ColWidth, $this->_LS, $person->Name . "   <" . $person->Email . ">");
+			  } else {
+				  $this->MultiCell($this->_ColWidth, $this->_LS, $person->Name);
+			  }
+		  } else {
+			  $this->SetFont($this->_Font,'',$this->_Char_Size);
+			  if (strlen($person->Email)) {
+				  $this->MultiCell($this->_ColWidth, $this->_LS, $person->Name . "   <" . $person->Email . ">");
+			  } else {
+				  $this->MultiCell($this->_ColWidth, $this->_LS, $person->Name);
+			  }
+		  }
+		
         $this->SetFont($this->_Font,'',$this->_Char_Size);
         $this->SetXY($_PosX, $_PosY);
         $this->MultiCell($this->_ColWidth, $this->_LS, $person->Phone, 0, 'R');
@@ -410,6 +423,12 @@ else
 {
     $sDirClassifications = "";
 }
+
+//$sPersonProperty = "";
+//if (array_key_exists ("sPersonProperty", $_POST)) {
+//  $sPersonProperty = $_POST["sPersonProperty"];
+//}
+
 $count = 0;
 foreach ($_POST["sDirRoleHead"] as $Head)
 {
@@ -499,7 +518,7 @@ if (strlen($sDirClassifications)) $sClassQualifier = "AND per_cls_ID in (" . $sD
 $sWhereExt = "";
 if (!empty($_POST["GroupID"]))
 {
-    $sGroupTable = "(person_per, person2group2role_p2g2r)";
+    $sGroupTable = "(person_per, person2group2role_p2g2r as g1)";
 
     $count = 0;
     foreach ($_POST["GroupID"] as $Grp)
@@ -508,8 +527,21 @@ if (!empty($_POST["GroupID"]))
     }
     $sGroupsList = implode(",",$aGroups);
 
-    $sWhereExt .= "AND per_ID = p2g2r_per_ID AND p2g2r_grp_ID in (" . $sGroupsList . ")";
+    $sWhereExt .= "AND per_ID = g1.p2g2r_per_ID AND g1.p2g2r_grp_ID in (" . $sGroupsList . ")";
 
+    if (!empty($_POST["GroupID2"]))
+    {
+        $sGroupTable = "(person_per, person2group2role_p2g2r as g1, person2group2role_p2g2r as g2)";
+        $count = 0;
+        foreach ($_POST["GroupID2"] as $Grp2)
+        {
+            $aGroups2[$count++] = FilterInput($Grp2,'int');
+        }
+        $sGroupsList2 = implode(",",$aGroups2);
+
+        $sWhereExt .= " AND per_ID = g2.p2g2r_per_ID AND g2.p2g2r_grp_ID in (" . $sGroupsList2 . ")";
+    }
+    
     // This is used by per-role queries to remove duplicate rows from people assigned multiple groups.
     $sGroupBy = " GROUP BY per_ID";
 } else { 
