@@ -8,6 +8,23 @@ Usage
 
 Data/Reports -> Reports Menu -> Contacts Book 2014 Style
 
+Hide Fields In 2014 Style Reporting
+===================================
+
+### Hide Family Address and Phone
+- First add a family property "hide_address" through "Properties" -> "Family Properties".
+- Then in family page, add property "hide_address"
+
+## Hide Person Phone or Email
+- First add person property "hide_email" and "hide_phone" through "Properties" -> "People Properties"
+- Then in person page, add property "hide_email" or "hide_phone". It's OK to add multiple properties.
+
+Select Person/Family Appeared in Both Groups
+============================================
+
+First make sure the people and the family belongs to two groups. 
+Then in "Contact Book 2014 Style" page, select one group in "Group Membership" and another group in "Group Membership 2".
+
 Make a ZIP Package
 ==================
 

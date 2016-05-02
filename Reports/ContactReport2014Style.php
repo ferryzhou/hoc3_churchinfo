@@ -20,6 +20,14 @@ require '../Include/Functions.php';
 require '../Include/ReportFunctions.php';
 require '../Include/ReportConfig.php';
 
+// ------- Properties Begin ------------
+$rsProperties = RunQuery("SELECT * FROM property_pro");
+while ( $proField = mysql_fetch_array($rsProperties) ){
+    extract($proField);
+    $propertyNames[$pro_ID] = trim($pro_Name);
+}
+// ------- Properties End ------------
+
 // Check for Create Directory user permission.
 if (!$bCreateDirectory) {
     Redirect('Menu.php');
@@ -326,13 +334,13 @@ class PDF_Directory extends ChurchInfoReport {
 
     // This function formats the string for the head of household.
     // NOTE: This is used for the Head AND Spouse (called twice)
-    function pGetPerson($rsCustomFields, $aHead )
+    function pGetPerson($rsCustomFields, $aHead, $propertyNames)
     {
         extract($aHead);
 
         $pHead = new Person();
         
-        $pHead->Name = $per_FirstName . " " . $per_LastName;
+        $pHead->Name = trim($per_FirstName . " " . $per_LastName);
 
         $sCountry = SelectWhichInfo($per_Country,$fam_Country,false);
         if (strlen($per_WorkPhone)) {
@@ -350,6 +358,19 @@ class PDF_Directory extends ChurchInfoReport {
         
         // TODO(ferryzhou): add chinese name from custom field.
         $pHead->ChineseName = $this->sGetChineseName($rsCustomFields, $aHead);
+        
+        // Find Person Properties
+        $sSQL = "SELECT * FROM record2property_r2p WHERE r2p_record_ID = " . $per_ID ;
+        $rsPerPros = RunQuery($sSQL);
+        while ( $rpField = mysql_fetch_array($rsPerPros) ){
+          extract($rpField);
+          if ($propertyNames[$r2p_pro_ID] == "hide_phone") {
+            $pHead->Phone = "";  // Hide it.
+          }
+          if ($propertyNames[$r2p_pro_ID] == "hide_email") {
+            $pHead->Email = "";  // Hide it.
+          }
+        }
 
         return $pHead;
     }
@@ -366,11 +387,14 @@ class PDF_Directory extends ChurchInfoReport {
         $_PosX = ($this->_Column*($this->_ColWidth+$this->_Gutter)) + $this->_Margin_Left;
         $_PosY = $this->GetY();
 
-        $this->SetXY($_PosX + $this->_ColWidth/10, $_PosY);
-        $this->MultiCell($this->_ColWidth, $this->_LS, iconv("UTF-8","ISO-8859-1",$addrPhone->Address), 0, 'L');
-        $this->SetXY($_PosX, $_PosY);
-        $this->MultiCell($this->_ColWidth, $this->_LS, iconv("UTF-8","ISO-8859-1",$addrPhone->Phone), 0, 'R');
-        $this->SetY($this->GetY() + $this->_LS * 2);
+        if (strlen($addrPhone->Address)) {
+          $this->SetXY($_PosX + $this->_ColWidth/10, $_PosY);
+          $this->MultiCell($this->_ColWidth, $this->_LS, iconv("UTF-8","ISO-8859-1",$addrPhone->Address), 0, 'L');
+          $this->SetXY($_PosX, $_PosY);
+          $this->MultiCell($this->_ColWidth, $this->_LS, iconv("UTF-8","ISO-8859-1",$addrPhone->Phone), 0, 'R');
+          $this->SetY($this->GetY() + $this->_LS);
+        }
+          $this->SetY($this->GetY() + $this->_LS);
     }
     
     // This prints the family name in BOLD
@@ -610,6 +634,17 @@ while ($aRow = mysql_fetch_array($rsRecords))
         $pdf->sRecordName = "";
         $pdf->sLastName = $per_LastName;
         $bNoRecordName = true;
+        
+        // Find Family Properties
+        $sSQL = "SELECT * FROM record2property_r2p WHERE r2p_record_ID = " . $iFamilyID;
+        $rsFamPros = RunQuery($sSQL);
+        while ( $rpField = mysql_fetch_array($rsFamPros) ){
+          extract($rpField);
+          //$addrPhone->Phone = $propertyNames[$r2p_pro_ID];
+          if ($propertyNames[$r2p_pro_ID] == "hide_address") {
+            $addrPhone->Address = "";  // Hide it.
+          }
+        }
 
         // Find the Head of Household
         $sSQL = "SELECT * FROM $sGroupTable LEFT JOIN family_fam ON per_fam_ID = fam_ID 
@@ -620,7 +655,7 @@ while ($aRow = mysql_fetch_array($rsRecords))
         if (mysql_num_rows($rsPerson) > 0)
         {
             $aHead = mysql_fetch_array($rsPerson);
-            array_push($persons, $pdf->pGetPerson($rsCustomFields, $aHead));
+            array_push($persons, $pdf->pGetPerson($rsCustomFields, $aHead, $propertyNames));
             $bNoRecordName = false;
         }
 
@@ -633,7 +668,7 @@ while ($aRow = mysql_fetch_array($rsRecords))
         if (mysql_num_rows($rsPerson) > 0)
         {
             $aSpouse = mysql_fetch_array($rsPerson);
-            array_push($persons, $pdf->pGetPerson($rsCustomFields, $aSpouse));
+            array_push($persons, $pdf->pGetPerson($rsCustomFields, $aSpouse, $propertyNames));
             $bNoRecordName = false;
         }
 
@@ -649,12 +684,12 @@ while ($aRow = mysql_fetch_array($rsRecords))
 
         while ($aRow = mysql_fetch_array($rsPerson))
         {
-            array_push($persons, $pdf->pGetPerson($rsCustomFields, $aRow));
+            array_push($persons, $pdf->pGetPerson($rsCustomFields, $aRow, $propertyNames));
         }
     }
     else
     {
-        array_push($persons, $pdf->pGetPerson($rsCustomFields, $aRow));
+        array_push($persons, $pdf->pGetPerson($rsCustomFields, $aRow, $propertyNames));
     }
 
     // Count the number of lines in the output string
