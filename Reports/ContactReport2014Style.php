@@ -387,7 +387,7 @@ class PDF_Directory extends ChurchInfoReport {
         $_PosX = ($this->_Column*($this->_ColWidth+$this->_Gutter)) + $this->_Margin_Left;
         $_PosY = $this->GetY();
 
-        if (strlen($addrPhone->Address)) {
+        if (strlen($addrPhone->Address) || strlen($addrPhone->Phone)) {
           $this->SetXY($_PosX + $this->_ColWidth/10, $_PosY);
           $this->MultiCell($this->_ColWidth, $this->_LS, iconv("UTF-8","ISO-8859-1",$addrPhone->Address), 0, 'L');
           $this->SetXY($_PosX, $_PosY);
@@ -640,9 +640,11 @@ while ($aRow = mysql_fetch_array($rsRecords))
         $rsFamPros = RunQuery($sSQL);
         while ( $rpField = mysql_fetch_array($rsFamPros) ){
           extract($rpField);
-          //$addrPhone->Phone = $propertyNames[$r2p_pro_ID];
           if ($propertyNames[$r2p_pro_ID] == "hide_address") {
             $addrPhone->Address = "";  // Hide it.
+          }
+          if ($propertyNames[$r2p_pro_ID] == "hide_phone") {
+            $addrPhone->Phone = "";  // Hide it.
           }
         }
 

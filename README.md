@@ -12,8 +12,8 @@ Hide Fields In 2014 Style Reporting
 ===================================
 
 ### Hide Family Address and Phone
-- First add a family property "hide_address" through "Properties" -> "Family Properties".
-- Then in family page, add property "hide_address"
+- First add a family property "hide_address" and "hide_phone" through "Properties" -> "Family Properties".
+- Then in family page, add property "hide_address" or "hide_phone"
 
 ## Hide Person Phone or Email
 - First add person property "hide_email" and "hide_phone" through "Properties" -> "People Properties"
