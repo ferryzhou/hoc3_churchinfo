@@ -429,7 +429,7 @@ class PDF_Directory extends ChurchInfoReport {
         $this->SetFont($this->_Font,'',$this->_Char_Size);
         $this->SetXY($_PosX, $_PosY);
         $this->MultiCell($this->_ColWidth, $this->_LS, $person->Phone, 0, 'R');
-        $this->SetY($this->GetY() + $this->_LS);
+        $this->SetY($this->GetY() + $this->_LS/2);
     }
 }
 
