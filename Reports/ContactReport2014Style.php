@@ -389,8 +389,10 @@ class PDF_Directory extends ChurchInfoReport {
     {
         $this->Check_Lines($numlines, $fid, $pid);
 
+        $first = True;
         foreach ($persons as $person) {
-          $this->Print_Person($person);
+          $this->Print_Person($person, $first);
+          $first = False;
         }
 
         $_PosX = ($this->_Column*($this->_ColWidth+$this->_Gutter)) + $this->_Margin_Left;
@@ -407,7 +409,7 @@ class PDF_Directory extends ChurchInfoReport {
     }
     
     // This prints the family name in BOLD
-    function Print_Person($person)
+    function Print_Person($person, $first)
     {
         $_PosX = ($this->_Column*($this->_ColWidth+$this->_Gutter)) + $this->_Margin_Left;
         $_PosY = $this->GetY();
@@ -417,6 +419,10 @@ class PDF_Directory extends ChurchInfoReport {
 		  if (strlen($person->ChineseName)) {
 			  $this->AddFont('CNB','','DroidSansFallback.ttf',true);
 			  $this->SetFont('CNB','',$this->_Char_Size + 2);
+			  if ($first) {
+			    $this->AddFont('CNBB','','DroidSansFallback-Bold.ttf',true);
+   			  $this->SetFont('CNBB','',$this->_Char_Size + 2);
+			  }
 			  $this->MultiCell($this->_ColWidth, $this->_LS, $person->ChineseName, 0, 'L');
 			
 			  $this->SetFont($this->_Font,'',$this->_Char_Size);
@@ -428,10 +434,14 @@ class PDF_Directory extends ChurchInfoReport {
 			  }
 		  } else {
 			  $this->SetFont($this->_Font,'',$this->_Char_Size);
+			  if ($first) {
+   			  $this->SetFont($this->_Font,'B',$this->_Char_Size);
+			  }
+				$this->MultiCell($this->_ColWidth, $this->_LS, $person->Name);
+			  $this->SetFont($this->_Font,'',$this->_Char_Size);
+			  $this->SetXY($_PosX + $this->_ColWidth/4, $_PosY);
 			  if (strlen($person->Email)) {
-				  $this->MultiCell($this->_ColWidth, $this->_LS, $person->Name . "   <" . $person->Email . ">");
-			  } else {
-				  $this->MultiCell($this->_ColWidth, $this->_LS, $person->Name);
+				  $this->MultiCell($this->_ColWidth, $this->_LS, "<" . $person->Email . ">");
 			  }
 		  }
 		
