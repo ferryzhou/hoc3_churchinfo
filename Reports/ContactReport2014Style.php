@@ -343,6 +343,15 @@ class PDF_Directory extends ChurchInfoReport {
         $pHead->Name = trim($per_FirstName . " " . $per_LastName);
 
         $sCountry = SelectWhichInfo($per_Country,$fam_Country,false);
+        if (strlen($fam_WorkPhone)) {
+            $pHead->Phone = ExpandPhoneNumber($fam_WorkPhone, $sCountry, $bWierd);
+        }
+        if (strlen($fam_HomePhone)) {
+            $pHead->Phone = ExpandPhoneNumber($fam_HomePhone, $sCountry, $bWierd);
+        }
+        if (strlen($fam_CellPhone)) {
+            $pHead->Phone = ExpandPhoneNumber($fam_CellPhone, $sCountry, $bWierd);
+        }
         if (strlen($per_WorkPhone)) {
             $pHead->Phone = ExpandPhoneNumber($per_WorkPhone, $sCountry, $bWierd);
         }
@@ -387,7 +396,7 @@ class PDF_Directory extends ChurchInfoReport {
         $_PosX = ($this->_Column*($this->_ColWidth+$this->_Gutter)) + $this->_Margin_Left;
         $_PosY = $this->GetY();
 
-        if (strlen($addrPhone->Address) || strlen($addrPhone->Phone)) {
+        if (strlen($addrPhone->Address)) {
           $this->SetXY($_PosX + $this->_ColWidth/10, $_PosY);
           $this->MultiCell($this->_ColWidth, $this->_LS, iconv("UTF-8","ISO-8859-1",$addrPhone->Address), 0, 'L');
           $this->SetXY($_PosX, $_PosY);
