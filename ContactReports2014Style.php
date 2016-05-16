@@ -86,12 +86,13 @@ while ($aRow = mysql_fetch_array($rsSecurityGrp))
         <td class="TextColumn">
             <div class="SmallText"><?php echo gettext("Use Ctrl Key to select multiple"); ?></div>
             <select name="sDirClassifications[]" size="5" multiple>
-            <option value="0">Unassigned</option>
+            <option value="0" selected>Unassigned</option>
             <?php
                 while ($aRow = mysql_fetch_array($rsClassifications)) {
                     extract($aRow);
                     echo "<option value=\"" . $lst_OptionID . "\"";
-                    if (in_array($lst_OptionID,$aDefaultClasses)) echo " selected";
+                    //if (in_array($lst_OptionID,$aDefaultClasses)) echo " selected";
+                    echo " selected";
                     echo ">" . $lst_OptionName . "</option>";
                 }
             ?>
@@ -135,7 +136,7 @@ while ($aRow = mysql_fetch_array($rsSecurityGrp))
 }
 ?>
     
-    <tr>
+    <tr hidden>
         <td class="LabelColumn"><?php echo gettext("Which role is the head of household?"); ?></td>
         <td class="TextColumn">
             <div class="SmallText"><?php echo gettext("Use Ctrl Key to select multiple"); ?></div>
@@ -151,7 +152,7 @@ while ($aRow = mysql_fetch_array($rsSecurityGrp))
             </select>
         </td>
     </tr>
-    <tr>
+    <tr hidden>
         <td class="LabelColumn"><?php echo gettext("Which role is the spouse?"); ?></td>
         <td class="TextColumn">
             <div class="SmallText"><?php echo gettext("Use Ctrl Key to select multiple"); ?></div>
@@ -168,7 +169,7 @@ while ($aRow = mysql_fetch_array($rsSecurityGrp))
             </select>
         </td>
     </tr>
-    <tr>
+    <tr hidden>
         <td class="LabelColumn"><?php echo gettext("Which role is a child?"); ?></td>
         <td class="TextColumn">
             <div class="SmallText"><?php echo gettext("Use Ctrl Key to select multiple"); ?></div>
@@ -185,7 +186,7 @@ while ($aRow = mysql_fetch_array($rsSecurityGrp))
             </select>
         </td>
     </tr>
-    <tr>
+    <tr hidden>
         <td class="LabelColumn"><?php echo gettext("Information to Include:"); ?></td>
         <td class="TextColumn">
             <input type="checkbox" Name="bDirAddress" value="1" checked><?php echo gettext("Address");?><br>
