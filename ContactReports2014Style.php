@@ -131,6 +131,23 @@ while ($aRow = mysql_fetch_array($rsSecurityGrp))
             </select>
         </td>
     </tr>
+    <tr>
+        <td class="LabelColumn"><?php echo gettext("Not In Group"); ?></td>
+        <td class="TextColumn">
+            <div class="SmallText"><?php echo gettext("Use Ctrl Key to select multiple"); ?></div>
+            <select name="NoGroupID[]" size="5" multiple>
+                <?php
+                $rsSQL = "SELECT * FROM group_grp ORDER BY grp_Name";
+                $rsGroups = RunQuery($rsSQL);
+                while ($aRow = mysql_fetch_array($rsGroups))
+                {
+                    extract($aRow);
+                    echo "<option value=\"" . $grp_ID . "\">" . $grp_Name . "</option>";
+                }
+                ?>
+            </select>
+        </td>
+    </tr>
     
 <?php
 }

@@ -594,6 +594,23 @@ if (!empty($_POST["GroupID"]))
 	$sGroupBy = "";
 }
 
+if (!empty($_POST["NoGroupID"]))
+{
+    $sGroupTable = "person_per";
+
+    $count = 0;
+    foreach ($_POST["NoGroupID"] as $Grp)
+    {
+        $aGroups[$count++] = FilterInput($Grp,'int');
+    }
+    $sGroupsList = implode(",",$aGroups);
+    
+    $excludeSub = "(select per_ID from (person_per,person2group2role_p2g2r as g1) where per_ID = g1.p2g2r_per_ID AND g1.p2g2r_grp_ID in (" . $sGroupsList . ") group by per_ID)";
+
+    $sWhereExt .= "AND per_ID not in " . $excludeSub;
+    $sGroupBy = "";
+}
+
 if (array_key_exists ('cartdir', $_POST))
 {
     $sWhereExt .= "AND per_ID IN (" . ConvertCartToString($_SESSION['aPeopleCart']) . ")";
