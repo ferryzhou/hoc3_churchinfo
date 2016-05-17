@@ -307,8 +307,9 @@ class PDF_Directory extends ChurchInfoReport {
 	      if (strlen($fam_Address1)) { $addr .= $fam_Address1;}
 	      if (strlen($fam_Address2)) { $addr .= "  ".$fam_Address2;}
         if (strlen($fam_City)) { $addr .= "  " . $fam_City . ", " . $fam_State . " " . $fam_Zip . "\n";  }
+        if (strlen(trim($fam_Address1)) == 0) $addr = ""; // hide address if no address info.
         $addrPhone->Address = $addr;
-
+        
         $addrPhone->Phone = "";
         if (strlen($fam_WorkPhone)) {
             $addrPhone->Phone = ExpandPhoneNumber($fam_WorkPhone, $fam_Country, $bWierd);
