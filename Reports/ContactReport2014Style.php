@@ -386,20 +386,51 @@ class PDF_Directory extends ChurchInfoReport {
     }
 
     // Number of lines is only for the $text parameter
-    function Add_Record($persons, $addrPhone, $numlines, $fid, $pid)
+    function Add_Record($persons, $children, $addrPhone, $numlines, $fid, $pid)
     {
         $this->Check_Lines($numlines, $fid, $pid);
 
         $first = True;
+        $prevPhone = "";
         foreach ($persons as $person) {
+          // hide phone if it's the same as previous person's phone. solve the family phone repeat issue.
+          if ($person->Phone != $prevPhone) {
+            $prevPhone = $person->Phone;
+          } else {
+            $person->Phone = "";
+          }
           $this->Print_Person($person, $first);
           $first = False;
         }
-
+        
+        // Print children's names.
         $_PosX = ($this->_Column*($this->_ColWidth+$this->_Gutter)) + $this->_Margin_Left;
         $_PosY = $this->GetY();
-
+        $this->SetXY($_PosX, $_PosY);
+        $offset = 0;
+        foreach ($children as $person) {
+		      if (strlen($person->ChineseName)) {
+			      $this->AddFont('CNB','','DroidSansFallback.ttf',true);
+			      $this->SetFont('CNB','',$this->_Char_Size);
+ 		        $this->SetXY($_PosX + $offset, $_PosY);
+			      $this->MultiCell($this->_ColWidth, $this->_LS, $person->ChineseName, 0, 'L');
+  			    $offset = $offset + $this->GetStringWidth($person->ChineseName . "  ");
+			    }
+			
+		      $this->SetFont($this->_Font,'',$this->_Char_Size);
+		      $this->SetXY($_PosX + $offset, $_PosY);
+			    $this->MultiCell($this->_ColWidth, $this->_LS, $person->Name);
+			    $offset = $offset + $this->GetStringWidth($person->Name . "     ");
+		    }
+		    if (count($children)) {
+            $this->SetY($this->GetY() + $this->_LS/2);
+        }
+        
+        // Print address line.
+        $_PosX = ($this->_Column*($this->_ColWidth+$this->_Gutter)) + $this->_Margin_Left;
+        $_PosY = $this->GetY();
         if (strlen($addrPhone->Address)) {
+          $this->SetFont($this->_Font,'',$this->_Char_Size);
           $this->SetXY($_PosX + $this->_ColWidth/10, $_PosY);
           $this->MultiCell($this->_ColWidth, $this->_LS, iconv("UTF-8","ISO-8859-1",$addrPhone->Address), 0, 'L');
           $this->SetXY($_PosX, $_PosY);
@@ -407,6 +438,22 @@ class PDF_Directory extends ChurchInfoReport {
           //$this->SetY($this->GetY() + $this->_LS);
         }
           $this->SetY($this->GetY() + $this->_LS);
+    }
+    
+    function Print_Child($person) {
+      $offset = 0;
+		  if (strlen($person->ChineseName)) {
+			  $this->AddFont('CNB','','DroidSansFallback.ttf',true);
+			  $this->SetFont('CNB','',$this->_Char_Size);
+			  $this->MultiCell($this->_ColWidth, $this->_LS, $person->ChineseName, 0, 'L');
+			
+			  $this->SetFont($this->_Font,'',$this->_Char_Size);
+			  $this->SetXY($_PosX + $this->_ColWidth/6, $_PosY);
+				$this->MultiCell($this->_ColWidth, $this->_LS, $person->Name);
+		  } else {
+			  $this->SetFont($this->_Font,'',$this->_Char_Size);
+				$this->MultiCell($this->_ColWidth, $this->_LS, $person->Name);
+		  }
     }
     
     // This prints the family name in BOLD
@@ -664,6 +711,7 @@ while ($aRow = mysql_fetch_array($rsRecords))
     $isFamily = false;
 
     $persons = array();
+    $children = array();
     if ($memberCount > 1) // Here we have a family record.
     {
         $iFamilyID = $per_fam_ID;
@@ -724,7 +772,8 @@ while ($aRow = mysql_fetch_array($rsRecords))
 
         while ($aRow = mysql_fetch_array($rsPerson))
         {
-            array_push($persons, $pdf->pGetPerson($rsCustomFields, $aRow, $propertyNames));
+            $person = $pdf->pGetPerson($rsCustomFields, $aRow, $propertyNames);
+            array_push($children, $person);
         }
     }
     else
@@ -733,7 +782,13 @@ while ($aRow = mysql_fetch_array($rsRecords))
     }
 
     // Count the number of lines in the output string
-    $numlines = count($persons) + 1; // address phone line
+    $numlines = count($persons);
+    if (strlen($addrPhone->Address)) {
+      $numlines++;
+    }
+    if (count($children)) {
+      $numlines++;
+    }
 
     if ($numlines > 0)
     {
@@ -746,7 +801,7 @@ while ($aRow = mysql_fetch_array($rsRecords))
         }
         
         // Add Family/Person Record
-        $pdf->Add_Record($persons, $addrPhone, $numlines, $fid, $pid);  // another hack: added +1
+        $pdf->Add_Record($persons, $children, $addrPhone, $numlines, $fid, $pid);  // another hack: added +1
     }
 }
 
