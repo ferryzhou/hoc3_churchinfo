@@ -260,14 +260,16 @@ class PDF_Directory extends ChurchInfoReport {
     function Add_Header($sLetter)
     {
         $this->Check_Lines(2, 0, 0);
-        $this->SetTextColor(0);
+        $this->SetFillColor(150, 150, 150);
+        $this->SetTextColor(255);
         $this->SetFont($this->_Font,'B',$this->_Char_Size);
         $_PosX = ($this->_Column*($this->_ColWidth+$this->_Gutter)) + $this->_Margin_Left;
         $_PosY = $this->GetY();
         $this->SetXY($_PosX, $_PosY);
-        $this->Cell($this->_ColWidth * 2 / 3, $this->_LS, $sLetter, "B",1,"L",0);
+        $this->Cell($this->_ColWidth * 2 / 3, $this->_LS, $sLetter, 0,1,"C",1);
         
         // restore color
+        $this->SetFillColor('WHITE');
         $this->SetTextColor(0);
         $this->SetFont($this->_Font,'',$this->_Char_Size);
         $this->SetY($this->GetY() + $this->_LS);
@@ -796,7 +798,8 @@ while ($aRow = mysql_fetch_array($rsRecords))
         if (strtoupper($sSectionWord) != strtoupper($pdf->sSortBy))
         {
             $pdf->Check_Lines($numlines+2, 0, 0);
-            $sSectionWord = strtoupper($pdf->sSortBy);
+            //$sSectionWord = strtoupper($pdf->sSortBy);
+            $sSectionWord = $pdf->sSortBy;
             $pdf->Add_Header($sSectionWord);
         }
         
