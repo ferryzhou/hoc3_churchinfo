@@ -401,6 +401,10 @@ class PDF_Directory extends ChurchInfoReport {
           } else {
             $person->Phone = "";
           }
+          // hide family phone if it's the same as personal phone.
+          if ($addrPhone->Phone == $prevPhone) {
+            $addrPhone->Phone = "";
+          }
           $this->Print_Person($person, $first);
           $first = False;
         }
