@@ -712,6 +712,19 @@ while ($aRow = mysql_fetch_array($rsRecords))
     
     $addrPhone = $pdf->pGetAddressPhone($aRow);
     
+    // Find Family Properties, hide address if hide_address tag is set.
+    $sSQL = "SELECT * FROM record2property_r2p WHERE r2p_record_ID = " . $per_fam_ID;
+    $rsFamPros = RunQuery($sSQL);
+    while ( $rpField = mysql_fetch_array($rsFamPros) ){
+      extract($rpField);
+      if ($propertyNames[$r2p_pro_ID] == "hide_address") {
+        $addrPhone->Address = "";  // Hide it.
+      }
+      if ($propertyNames[$r2p_pro_ID] == "hide_phone") {
+        $addrPhone->Phone = "";  // Hide it.
+      }
+    }
+    
     $pdf->sSortBy = $SortMe;
     
     $isFamily = false;
@@ -727,19 +740,6 @@ while ($aRow = mysql_fetch_array($rsRecords))
         $pdf->sLastName = $per_LastName;
         $bNoRecordName = true;
         
-        // Find Family Properties
-        $sSQL = "SELECT * FROM record2property_r2p WHERE r2p_record_ID = " . $iFamilyID;
-        $rsFamPros = RunQuery($sSQL);
-        while ( $rpField = mysql_fetch_array($rsFamPros) ){
-          extract($rpField);
-          if ($propertyNames[$r2p_pro_ID] == "hide_address") {
-            $addrPhone->Address = "";  // Hide it.
-          }
-          if ($propertyNames[$r2p_pro_ID] == "hide_phone") {
-            $addrPhone->Phone = "";  // Hide it.
-          }
-        }
-
         // Find the Head of Household
         $sSQL = "SELECT * FROM $sGroupTable LEFT JOIN family_fam ON per_fam_ID = fam_ID 
             WHERE per_fam_ID = " . $iFamilyID . " 
