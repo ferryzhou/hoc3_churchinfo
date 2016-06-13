@@ -680,9 +680,9 @@ if($mysqlversion >= 4){
     // This query is similar to that of the CSV export with family roll-up.
     // Here we want to gather all unique families, and those that are not attached to a family.
 //        UNION (SELECT *, COUNT(*) AS memberCount, per_LastName AS SortMe FROM $sGroupTable LEFT JOIN family_fam ON per_fam_ID = fam_ID WHERE per_fam_ID > 0 $sWhereExt $sClassQualifier  GROUP BY per_fam_ID HAVING memberCount > 1)
-    $sSQL = "(SELECT *, 0 AS memberCount, per_LastName AS SortMe FROM $sGroupTable LEFT JOIN family_fam ON per_fam_ID = fam_ID WHERE per_fam_ID = 0 $sWhereExt $sClassQualifier )
-        UNION (SELECT *, COUNT(*) AS memberCount, per_LastName AS SortMe FROM $sGroupTable LEFT JOIN family_fam ON per_fam_ID = fam_ID WHERE per_fam_ID > 0 $sWhereExt $sClassQualifier  GROUP BY per_fam_ID HAVING memberCount = 1)
-        UNION (SELECT *, 2 AS memberCount, per_LastName AS SortMe FROM $sGroupTable LEFT JOIN family_fam ON per_fam_ID = fam_ID WHERE per_fmr_ID in ($sDirRoleHeads) $sWhereExt $sClassQualifier AND per_fam_ID in (SELECT per_fam_ID FROM (SELECT per_fam_ID, COUNT(*) AS memberCount FROM $sGroupTable LEFT JOIN family_fam ON per_fam_ID = fam_ID WHERE per_fam_ID > 0 $sWhereExt $sClassQualifier GROUP BY per_fam_ID HAVING memberCount > 1) as a))
+    $sSQL = "(SELECT *, 0 AS memberCount, concat(per_LastName, ' ', per_FirstName) AS SortMe FROM $sGroupTable LEFT JOIN family_fam ON per_fam_ID = fam_ID WHERE per_fam_ID = 0 $sWhereExt $sClassQualifier )
+        UNION (SELECT *, COUNT(*) AS memberCount, concat(per_LastName, ' ', per_FirstName) AS SortMe FROM $sGroupTable LEFT JOIN family_fam ON per_fam_ID = fam_ID WHERE per_fam_ID > 0 $sWhereExt $sClassQualifier  GROUP BY per_fam_ID HAVING memberCount = 1)
+        UNION (SELECT *, 2 AS memberCount, concat(per_LastName, ' ', per_FirstName) AS SortMe FROM $sGroupTable LEFT JOIN family_fam ON per_fam_ID = fam_ID WHERE per_fmr_ID in ($sDirRoleHeads) $sWhereExt $sClassQualifier AND per_fam_ID in (SELECT per_fam_ID FROM (SELECT per_fam_ID, COUNT(*) AS memberCount FROM $sGroupTable LEFT JOIN family_fam ON per_fam_ID = fam_ID WHERE per_fam_ID > 0 $sWhereExt $sClassQualifier GROUP BY per_fam_ID HAVING memberCount > 1) as a))
         ORDER BY SortMe";
 }else if($mysqlversion == 3 && $mysqlsubversion >= 22){
     // If UNION not supported use this query with temporary table.  Prior to version 3.22 no IF EXISTS statement.
@@ -725,7 +725,8 @@ while ($aRow = mysql_fetch_array($rsRecords))
       }
     }
     
-    $pdf->sSortBy = $SortMe;
+    //$pdf->sSortBy = $SortMe;
+    $pdf->sSortBy = $per_LastName;
     
     $isFamily = false;
 
