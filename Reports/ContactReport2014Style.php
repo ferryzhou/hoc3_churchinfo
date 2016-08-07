@@ -39,6 +39,7 @@ class Person {
   public $ChineseName;
   public $Email;
   public $Phone;
+  public $CellPhone;
 }
 
 class AddressPhone {
@@ -363,6 +364,7 @@ class PDF_Directory extends ChurchInfoReport {
         }
         if (strlen($per_CellPhone)) {
             $pHead->Phone = ExpandPhoneNumber($per_CellPhone, $sCountry, $bWierd);
+            $pHead->CellPhone = ExpandPhoneNumber($per_CellPhone, $sCountry, $bWierd);
         }
         
         if (strlen($per_WorkEmail)) $pHead->Email = $per_WorkEmail;
@@ -402,9 +404,9 @@ class PDF_Directory extends ChurchInfoReport {
             $person->Phone = "";
           }
           // hide family phone if it's the same as personal phone.
-          if ($addrPhone->Phone == $prevPhone) {
-            $addrPhone->Phone = "";
-          }
+          //if ($addrPhone->Phone == $prevPhone) {
+          //  $addrPhone->Phone = "";
+          //}
           $this->Print_Person($person, $first);
           $first = False;
         }
@@ -780,7 +782,13 @@ while ($aRow = mysql_fetch_array($rsRecords))
         while ($aRow = mysql_fetch_array($rsPerson))
         {
             $person = $pdf->pGetPerson($rsCustomFields, $aRow, $propertyNames);
-            array_push($children, $person);
+            if ($person->CellPhone != "" || $person->Email != "") {
+              // The child is printed into a single line if he/she has a cellphone or an email.
+              array_push($persons, $person);
+            } else {
+              // Children are print in the same line with only name is printed.
+              array_push($children, $person);
+            }
         }
     }
     else
