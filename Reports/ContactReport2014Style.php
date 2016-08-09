@@ -347,15 +347,15 @@ class PDF_Directory extends ChurchInfoReport {
         $pHead->Name = trim($per_FirstName . " " . $per_LastName);
 
         $sCountry = SelectWhichInfo($per_Country,$fam_Country,false);
-        if (strlen($fam_WorkPhone)) {
-            $pHead->Phone = ExpandPhoneNumber($fam_WorkPhone, $sCountry, $bWierd);
-        }
-        if (strlen($fam_HomePhone)) {
-            $pHead->Phone = ExpandPhoneNumber($fam_HomePhone, $sCountry, $bWierd);
-        }
-        if (strlen($fam_CellPhone)) {
-            $pHead->Phone = ExpandPhoneNumber($fam_CellPhone, $sCountry, $bWierd);
-        }
+        //if (strlen($fam_WorkPhone)) {
+        //    $pHead->Phone = ExpandPhoneNumber($fam_WorkPhone, $sCountry, $bWierd);
+        //}
+        //if (strlen($fam_HomePhone)) {
+        //    $pHead->Phone = ExpandPhoneNumber($fam_HomePhone, $sCountry, $bWierd);
+        //}
+        //if (strlen($fam_CellPhone)) {
+        //    $pHead->Phone = ExpandPhoneNumber($fam_CellPhone, $sCountry, $bWierd);
+        //}
         if (strlen($per_WorkPhone)) {
             $pHead->Phone = ExpandPhoneNumber($per_WorkPhone, $sCountry, $bWierd);
         }
@@ -395,16 +395,19 @@ class PDF_Directory extends ChurchInfoReport {
         $this->Check_Lines($numlines, $fid, $pid);
 
         $first = True;
-        $prevPhone = "";
+        // Home phone as initial phone number. It has highest precedence order.
+        $prevPhone = $addrPhone->Phone;
         foreach ($persons as $person) {
           // hide phone if it's the same as previous person's phone. solve the family phone repeat issue.
-          if ($person->Phone != $prevPhone) {
-            $prevPhone = $person->Phone;
-          } else {
-            $person->Phone = "";
+          if ($person->Phone != "") {
+            if ($person->Phone != $prevPhone && $person->Phone != $addrPhone->Phone) {
+              $prevPhone = $person->Phone;
+            } else {
+              $person->Phone = "";
+            }
           }
           // hide family phone if it's the same as personal phone.
-          //if ($addrPhone->Phone == $prevPhone) {
+          //if ($addrPhone->Phone == $person->Phone) {
           //  $addrPhone->Phone = "";
           //}
           $this->Print_Person($person, $first);
