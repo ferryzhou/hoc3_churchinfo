@@ -396,20 +396,25 @@ class PDF_Directory extends ChurchInfoReport {
 
         $first = True;
         // Home phone as initial phone number. It has highest precedence order.
+        $showAddress = strlen($addrPhone->Address) > 0;
         $prevPhone = $addrPhone->Phone;
+        if (!$showAddress) {
+          $prevPhone = "";
+        }
         foreach ($persons as $person) {
-          // hide phone if it's the same as previous person's phone. solve the family phone repeat issue.
+          if (!$showAddress && $person->Phone == "") {
+            $person->Phone = $addrPhone->Phone;  // Use home phone if it's not shown.
+          }
+          // hide phone if it's the same as previous person's phone or home phone (if shown). solve the family phone repeat issue.
           if ($person->Phone != "") {
-            if ($person->Phone != $prevPhone && $person->Phone != $addrPhone->Phone) {
-              $prevPhone = $person->Phone;
-            } else {
+            if ($person->Phone == $prevPhone) {
               $person->Phone = "";
+            } else if ($showAddress && $person->Phone == $addrPhone->Phone) {
+              $person->Phone = "";
+            } else {
+              $prevPhone = $person->Phone;
             }
           }
-          // hide family phone if it's the same as personal phone.
-          //if ($addrPhone->Phone == $person->Phone) {
-          //  $addrPhone->Phone = "";
-          //}
           $this->Print_Person($person, $first);
           $first = False;
         }
