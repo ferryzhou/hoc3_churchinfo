@@ -78,7 +78,7 @@ class PDF_Directory extends ChurchInfoReport {
             //Move to the right
             $this->SetX($this->_Margin_Left);
             //Framed title
-            $this->Cell($this->w - ($this->_Margin_Left*2),10,$this->sChurchName . " - " . gettext("Directory"),'B',0,'C');
+            $this->Cell($this->w - ($this->_Margin_Left*2),10,$this->sChurchName . " - " . gettext("Directory 2016"),'B',0,'C');
             $this->SetY(25);
         }
     }
@@ -160,7 +160,7 @@ class PDF_Directory extends ChurchInfoReport {
         $this->_Margin_Top  = 13;
         $this->_Custom = array();
 	$this->_NCols = $nc;
-	$this->_ColWidth = 190 / $nc - $this->_Gutter;
+	$this->_ColWidth = 192 / $nc - $this->_Gutter;
     }
 
     function AddCustomField($order, $use){
@@ -307,9 +307,9 @@ class PDF_Directory extends ChurchInfoReport {
         $addrPhone = new AddressPhone();
 
         $addr = "";
-	      if (strlen($fam_Address1)) { $addr .= $fam_Address1;}
-	      if (strlen($fam_Address2)) { $addr .= "  ".$fam_Address2;}
-        if (strlen($fam_City)) { $addr .= "  " . $fam_City . ", " . $fam_State . " " . $fam_Zip . "\n";  }
+	    if (strlen($fam_Address1)) { $addr .= $fam_Address1;}
+	    if (strlen($fam_Address2)) { $addr .= ",  ".$fam_Address2;}
+        if (strlen($fam_City)) { $addr .= ",  " . $fam_City . ", " . $fam_State . " " . $fam_Zip . "\n";  }
         if (strlen(trim($fam_Address1)) == 0) $addr = ""; // hide address if no address info.
         $addrPhone->Address = $addr;
         
@@ -397,10 +397,15 @@ class PDF_Directory extends ChurchInfoReport {
         $first = True;
         // Home phone as initial phone number. It has highest precedence order.
         $showAddress = strlen($addrPhone->Address) > 0;
+/*
         $prevPhone = $addrPhone->Phone;
+
         if (!$showAddress) {
           $prevPhone = "";
         }
+
+
+
         foreach ($persons as $person) {
           if (!$showAddress && $person->Phone == "") {
             $person->Phone = $addrPhone->Phone;  // Use home phone if it's not shown.
@@ -418,12 +423,33 @@ class PDF_Directory extends ChurchInfoReport {
           $this->Print_Person($person, $first);
           $first = False;
         }
+*/
+		$prevPhone = array();
+		if ($showAddress && $addrPhone->Phone != "")
+			array_push($prevPhone, $addrPhone->Phone);
+
+		foreach ($persons as $person) {
+          if (!$showAddress && $person->Phone == "")
+            $person->Phone = $addrPhone->Phone;  // Use home phone if it's not shown.
+		  foreach ($prevPhone as $phone) {
+			if ($person->Phone == $phone) {
+				$person->Phone = "";
+				break;
+			}
+		  }
+		  if ($person->Phone != "")
+			array_push($prevPhone, $person->Phone);
+
+		  $this->Print_Person($person, $first);
+          $first = False;
+		}
         
         // Print children's names.
         $_PosX = ($this->_Column*($this->_ColWidth+$this->_Gutter)) + $this->_Margin_Left;
         $_PosY = $this->GetY();
         $this->SetXY($_PosX, $_PosY);
         $offset = 0;
+		$childNumber = 1;
         foreach ($children as $person) {
 		      if (strlen($person->ChineseName)) {
 			      $this->AddFont('CNB','','DroidSansFallback.ttf',true);
@@ -431,10 +457,12 @@ class PDF_Directory extends ChurchInfoReport {
  		        $this->SetXY($_PosX + $offset, $_PosY);
 			      $this->MultiCell($this->_ColWidth, $this->_LS, $person->ChineseName, 0, 'L');
   			    $offset = $offset + $this->GetStringWidth($person->ChineseName . "  ");
-			    }
+			  }
 			
 		      $this->SetFont($this->_Font,'',$this->_Char_Size);
 		      $this->SetXY($_PosX + $offset, $_PosY);
+			  if ($childNumber++ < count($children))
+				  $person->Name .= ",";
 			    $this->MultiCell($this->_ColWidth, $this->_LS, $person->Name);
 			    $offset = $offset + $this->GetStringWidth($person->Name . "     ");
 		    }
@@ -490,7 +518,7 @@ class PDF_Directory extends ChurchInfoReport {
 			  $this->MultiCell($this->_ColWidth, $this->_LS, $person->ChineseName, 0, 'L');
 			
 			  $this->SetFont($this->_Font,'',$this->_Char_Size);
-			  $this->SetXY($_PosX + $this->_ColWidth/6, $_PosY);
+			  $this->SetXY($_PosX + $this->_ColWidth/7, $_PosY);
 			  if (strlen($person->Email)) {
 				  $this->MultiCell($this->_ColWidth, $this->_LS, $person->Name . "   <" . $person->Email . ">");
 			  } else {
