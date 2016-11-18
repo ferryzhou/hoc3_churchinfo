@@ -85,6 +85,10 @@ if (isset($_SESSION['iUserID'])) {      // Not set on Default.php
         }
     }
 }
+//
+// overwrite $sMailToDelimiter to ";" for Microsoft Outlook
+//
+$sMailtoDelimiter = ";";
 
 $sMetaRefresh = '';  // Initialize to empty
 
