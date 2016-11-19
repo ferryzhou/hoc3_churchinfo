@@ -3,6 +3,10 @@ Install
 
 Copy everything in this folder to churchinfo/.
 
+Onboarding
+==========
+- [PHP Programming & HOC3 ChurchInfo](https://docs.google.com/presentation/d/1YyWXjUEH5sB93nfboS0woosr5-lYBvdWVpNHIbqXgpE/edit#slide=id.p)
+
 Usage
 =====
 
