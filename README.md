@@ -38,4 +38,5 @@ Contributors
 ============
 
 Jin Zhou <ferryzhou@gmail.com>
+David Guo <davidguo94@gmail.com>
 
