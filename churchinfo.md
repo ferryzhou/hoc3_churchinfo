@@ -4,8 +4,8 @@ http://www.churchdb.org/
 
 Click the light green button on the top left.
 
-Install
-=======
+Install in Windows
+==================
 
 Unpack the churchinfo directory from the distribution into the directory C:\xampp\htdocs\churchinfo
 
@@ -34,6 +34,12 @@ Now browse to: http://localhost/churchinfo
 Log in with user name "admin", password "churchinfoadmin"
 
 It will ask you to change the password immediately.
+
+
+Mac
+===
+
+For Mac, the XAMPP root directory is /Applications/XAMPP. Replace C:\xampp with /Applications/XAMPP in above instructions.
 
 
 Tips
