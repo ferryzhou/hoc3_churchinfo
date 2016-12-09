@@ -335,6 +335,7 @@ if (!$bPrintView) {
 <table cellpadding="2" align="left" cellspacing="0" width="100%">
 	<tr class="TableHeader">
 		<td><?php echo gettext("Name"); ?></td>
+        <td><?php echo gettext("ID"); ?></td>
 		<td><?php echo gettext("ChineseName"); ?></td>
 		<td><?php echo gettext("Group Role"); ?></td>
 		<td><?php echo gettext("Address"); ?></td>
@@ -349,6 +350,7 @@ if (!$bPrintView) {
 	while ($aRow = mysql_fetch_array($sSQL_Result))
 	{
 		$per_Title = "";
+        $per_ID = "";
 		$per_FirstName = "";
 		$per_MiddleName = "";
 		$per_LastName = "";
@@ -386,7 +388,8 @@ if (!$bPrintView) {
 		$sCountry = SelectWhichInfo($per_Country, $fam_Country, False);
 		$sHomePhone = SelectWhichInfo(ExpandPhoneNumber($per_HomePhone,$sCountry,$dummy),
 						ExpandPhoneNumber($fam_HomePhone,$fam_Country,$dummy), False);
-		$sEmail = SelectWhichInfo($per_Email, $fam_Email, False);
+		$sEmail = SelectWhichInfo($per_Email, $fam_Email, TRUE);
+        $sID = SelectWhichInfo($per_Email, False);
 		//Display the row
 		?>
 	<tr class="<?php echo $sRowClass; ?>">
@@ -395,7 +398,8 @@ if (!$bPrintView) {
 				echo "<a target=\"_top\" href=\"PersonView.php?PersonID=$per_ID\">" . FormatFullName($per_Title, $per_FirstName, $per_MiddleName, $per_LastName, $per_Suffix, 0) . "</a>";
 			else
 				echo FormatFullName($per_Title, $per_FirstName, $per_MiddleName, $per_LastName, $per_Suffix, 0); ?>
-		</td>		
+		</td>
+        <td><?php echo $per_ID; ?></td>
 		<td><?php echo $per_cnName; ?></td>
 		<td><?php
 			if ($_SESSION['bManageGroups'] && !$bPrintView) echo "<a target=\"_top\" href=\"MemberRoleChange.php?GroupID=" . $iGroupID . "&PersonID=" . $per_ID . "&Return=1\">";
