@@ -937,6 +937,8 @@ if ($iMode == 1 || $iMode == 2) {
 		echo '<td><a href="SelectList.php?mode=' .$sMode. '&amp;type=' .$iGroupTypeMissing;
 		echo '&amp;Sort=name&amp;Filter=' .$sFilter. '">' . gettext("Name") . '</a></td>';
 
+        echo "<td>" . gettext("ID") . "</td>";
+        echo "<td>" . gettext("Membership Date") . "</td>";
 		echo "<td>" . gettext("ChineseName") . "</td>";
 		echo "<td>" . gettext("Phone") . "</td>";
 		echo "<td>" . gettext("Email") . "</td>";
@@ -1013,6 +1015,8 @@ if ($iMode == 1 || $iMode == 2) {
 			$per_FirstName = "";
 			$per_MiddleName = "";
 			$per_LastName = "";
+            $per_ID = "";
+            $per_MembershipDate = "";
 			$per_Suffix = "";
 			$per_Gender = "";
 			
@@ -1075,7 +1079,16 @@ if ($iMode == 1 || $iMode == 2) {
 								$per_LastName, $per_Suffix, 3);
 		  //echo "&nbsp;(" . $per_cnName . ")";
 			echo "</a>&nbsp;</td>";
-
+            if ($per_MembershipDate != "")
+            {
+            echo "<td>";
+            printf("%04d", $per_ID);
+            echo "<td>";
+            }
+            else
+            echo "<td>" . "<td>";
+            if ($per_MembershipDate != "")
+            echo "<td>" . $per_MembershipDate . "</td>";
 			echo "<td>" . $per_cnName . "</td>";
 			echo "<td>" . SelectWhichInfo(ExpandPhoneNumber($per_CellPhone,$fam_Country,$dummy),
         		        ExpandPhoneNumber($fam_CellPhone,$fam_Country,$dummy), True) . "</td>";
