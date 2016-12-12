@@ -937,7 +937,9 @@ if ($iMode == 1 || $iMode == 2) {
 		echo '<td><a href="SelectList.php?mode=' .$sMode. '&amp;type=' .$iGroupTypeMissing;
 		echo '&amp;Sort=name&amp;Filter=' .$sFilter. '">' . gettext("Name") . '</a></td>';
 
-		echo "<td>" . gettext("ChineseName") . "</td>";
+        echo "<td>" . gettext("ID") . "</td>";
+        echo "<td>" . gettext("Membership Date") . "</td>";
+		echo "<td>" . gettext("Chinese Name") . "</td>";
 		echo "<td>" . gettext("Phone") . "</td>";
 		echo "<td>" . gettext("Email") . "</td>";
 		
@@ -1013,9 +1015,11 @@ if ($iMode == 1 || $iMode == 2) {
 			$per_FirstName = "";
 			$per_MiddleName = "";
 			$per_LastName = "";
+            $per_ID = "";
+            $per_MembershipDate = "";
 			$per_Suffix = "";
 			$per_Gender = "";
-			
+            $per_cls_ID = "";
 			$per_cnName = "";
 
 			$fam_Name = "";
@@ -1075,11 +1079,20 @@ if ($iMode == 1 || $iMode == 2) {
 								$per_LastName, $per_Suffix, 3);
 		  //echo "&nbsp;(" . $per_cnName . ")";
 			echo "</a>&nbsp;</td>";
-
+            if ($per_cls_ID == 1)
+            {
+				echo "<td>";
+				printf("%04d", $per_ID);
+            ;
+            }
+            else
+				echo "<td>" . "<td>";
+            if ($per_cls_ID == 1)
+				echo "<td>" . $per_MembershipDate . "</td>";
 			echo "<td>" . $per_cnName . "</td>";
 			echo "<td>" . SelectWhichInfo(ExpandPhoneNumber($per_CellPhone,$fam_Country,$dummy),
         		        ExpandPhoneNumber($fam_CellPhone,$fam_Country,$dummy), True) . "</td>";
-      echo "<td>" . $per_Email . "</td>";
+			echo "<td>" . $per_Email . "</td>";
 /*		
 			echo "<td>";
 			
@@ -1192,6 +1205,8 @@ if ($iMode == 1 || $iMode == 2) {
 
         <tr class="TableHeader">
             <td><?php echo gettext("Name"); ?></td>
+            <td><?php echo gettext("ID"); ?></td>
+            <td><?php echo gettext("Membership"); ?><br><?php echo gettext("Date");?></td>
             <td><?php echo gettext("Address"); ?><br><?php echo gettext("City, State Zip"); ?></td>
             <td><?php echo gettext("Home Phone") . " /"; ?>
             <br><?php echo gettext("Work Phone") . " /"; ?>
@@ -1218,6 +1233,10 @@ if ($iMode == 1 || $iMode == 2) {
             $per_Suffix = "";
             $per_Address1 = "";
             $per_Address2 = "";
+            $per_cls_ID = "";
+            $per_ID = "";
+            $per_cls_ID = "";
+            $per_MembershipDate= "";
             $per_City = "";
             $per_State = "";
             $per_Zip = "";
@@ -1260,6 +1279,17 @@ if ($iMode == 1 || $iMode == 2) {
 
             <tr class="<?php echo $sRowClass; ?>">
   	            <td><?php echo FormatFullName($per_Title, $per_FirstName, $per_MiddleName, $per_LastName, $per_Suffix, 0); ?>&nbsp;</td>
+<?php
+if ($per_cls_ID == 1)
+{
+    echo "<td>";
+    printf("%04d", $per_ID);
+    ;
+}
+else
+echo "<td>" . "<td>";
+if ($per_cls_ID == 1)
+echo "<td>" . $per_MembershipDate . "</td>"; ?>
                 <td><?php echo $sAddress1;?>&nbsp;<?php if ($sAddress1 != "" && $sAddress2 != "") { echo ", "; } ?><?php if ($sAddress2 != "") echo $sAddress2; ?>
                   <?php if ($sCity || $sState || $sZip)
                             echo "<br>" . $sCity . ", " . $sState . " " . $sZip; ?></td>
