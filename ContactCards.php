@@ -27,12 +27,12 @@ if (!$bCreateDirectory) {
 }
 
 // Set the page title and include HTML header
-$sPageTitle = gettext("Contact reports");
+$sPageTitle = gettext("ContactCard");
 require "Include/Header.php";
 
 ?>
 
-<form method="POST" action="Reports/ContactReport.php">
+<form method="POST" action="Reports/ContactCard.php">
 
 <?php
 
@@ -86,12 +86,13 @@ while ($aRow = mysql_fetch_array($rsSecurityGrp))
         <td class="TextColumn">
             <div class="SmallText"><?php echo gettext("Use Ctrl Key to select multiple"); ?></div>
             <select name="sDirClassifications[]" size="5" multiple>
-            <option value="0">Unassigned</option>
+            <option value="0" selected>Unassigned</option>
             <?php
                 while ($aRow = mysql_fetch_array($rsClassifications)) {
                     extract($aRow);
                     echo "<option value=\"" . $lst_OptionID . "\"";
-                    if (in_array($lst_OptionID,$aDefaultClasses)) echo " selected";
+                    //if (in_array($lst_OptionID,$aDefaultClasses)) echo " selected";
+                    echo " selected";
                     echo ">" . $lst_OptionName . "</option>";
                 }
             ?>
@@ -113,12 +114,46 @@ while ($aRow = mysql_fetch_array($rsSecurityGrp))
             </select>
         </td>
     </tr>
+    <tr>
+        <td class="LabelColumn"><?php echo gettext("Group Membership 2:"); ?></td>
+        <td class="TextColumn">
+            <div class="SmallText"><?php echo gettext("Use Ctrl Key to select multiple"); ?></div>
+            <select name="GroupID2[]" size="5" multiple>
+                <?php
+                $rsSQL = "SELECT * FROM group_grp ORDER BY grp_Name";
+                $rsGroups = RunQuery($rsSQL);
+                while ($aRow = mysql_fetch_array($rsGroups))
+                {
+                    extract($aRow);
+                    echo "<option value=\"" . $grp_ID . "\">" . $grp_Name . "</option>";
+                }
+                ?>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td class="LabelColumn"><?php echo gettext("Not In Group"); ?></td>
+        <td class="TextColumn">
+            <div class="SmallText"><?php echo gettext("Use Ctrl Key to select multiple"); ?></div>
+            <select name="NoGroupID[]" size="5" multiple>
+                <?php
+                $rsSQL = "SELECT * FROM group_grp ORDER BY grp_Name";
+                $rsGroups = RunQuery($rsSQL);
+                while ($aRow = mysql_fetch_array($rsGroups))
+                {
+                    extract($aRow);
+                    echo "<option value=\"" . $grp_ID . "\">" . $grp_Name . "</option>";
+                }
+                ?>
+            </select>
+        </td>
+    </tr>
 
 <?php
 }
 ?>
 
-    <tr>
+    <tr hidden>
         <td class="LabelColumn"><?php echo gettext("Which role is the head of household?"); ?></td>
         <td class="TextColumn">
             <div class="SmallText"><?php echo gettext("Use Ctrl Key to select multiple"); ?></div>
@@ -134,7 +169,7 @@ while ($aRow = mysql_fetch_array($rsSecurityGrp))
             </select>
         </td>
     </tr>
-    <tr>
+    <tr hidden>
         <td class="LabelColumn"><?php echo gettext("Which role is the spouse?"); ?></td>
         <td class="TextColumn">
             <div class="SmallText"><?php echo gettext("Use Ctrl Key to select multiple"); ?></div>
@@ -151,7 +186,7 @@ while ($aRow = mysql_fetch_array($rsSecurityGrp))
             </select>
         </td>
     </tr>
-    <tr>
+    <tr hidden>
         <td class="LabelColumn"><?php echo gettext("Which role is a child?"); ?></td>
         <td class="TextColumn">
             <div class="SmallText"><?php echo gettext("Use Ctrl Key to select multiple"); ?></div>
@@ -168,7 +203,7 @@ while ($aRow = mysql_fetch_array($rsSecurityGrp))
             </select>
         </td>
     </tr>
-    <tr>
+    <tr hidden>
         <td class="LabelColumn"><?php echo gettext("Information to Include:"); ?></td>
         <td class="TextColumn">
             <input type="checkbox" Name="bDirAddress" value="1" checked><?php echo gettext("Address");?><br>
@@ -203,8 +238,8 @@ while ($aRow = mysql_fetch_array($rsSecurityGrp))
 	<tr>
 	 <td class="LabelColumn"><?php echo gettext("Number of Columns:"); ?></td>
  	 <td class="TextColumn">
-		    <input type="radio" Name="NumCols" value=1>1 col<br>
-		    <input type="radio" Name="NumCols" value=2 checked>2 cols<br>
+		    <input type="radio" Name="NumCols" value=1 checked>1 col<br>
+		    <input type="radio" Name="NumCols" value=2>2 cols<br>
 		    <input type="radio" Name="NumCols" value=3>3 cols<br>
 	</td>
 	</tr>
@@ -222,11 +257,11 @@ while ($aRow = mysql_fetch_array($rsSecurityGrp))
 		<tr>
 		    <td><input type="radio" Name="FSize" value=6>6<br>
 		    <input type="radio" Name="FSize" value=8>8<br>
-		    <input type="radio" Name="FSize" value=10 checked>10<br></td>
+		    <input type="radio" Name="FSize" value=10>10<br></td>
 
 		    <td><input type="radio" Name="FSize" value=12>12<br>
 		    <input type="radio" Name="FSize" value=14>14<br>
-		    <input type="radio" Name="FSize" value=16>16<br></td>
+		    <input type="radio" Name="FSize" value=16 checked>16<br></td>
 		</tr>
 		</table>
 	</td>

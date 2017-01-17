@@ -26,7 +26,7 @@ Hide Fields In 2014 Style Reporting
 Select Person/Family Appeared in Both Groups
 ============================================
 
-First make sure the people and the family belongs to two groups. 
+First make sure the people and the family belongs to two groups.
 Then in "Contact Book 2014 Style" page, select one group in "Group Membership" and another group in "Group Membership 2".
 
 Make a ZIP Package
@@ -37,6 +37,5 @@ git archive -o hoc3_contacts_php.zip HEAD
 Contributors
 ============
 
-Jin Zhou <ferryzhou@gmail.com>
-David Guo <davidguo94@gmail.com>
-
+- Jin Zhou <ferryzhou@gmail.com>
+- David Guo <davidguo94@gmail.com>

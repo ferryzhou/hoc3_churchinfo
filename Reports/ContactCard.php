@@ -256,26 +256,6 @@ class PDF_Directory extends ChurchInfoReport {
         }
     }
 
-    // This function prints out the heading when a letter
-    // changes.
-    function Add_Header($sLetter)
-    {
-        $this->Check_Lines(2, 0, 0);
-        $this->SetFillColor(150, 150, 150);
-        $this->SetTextColor(255);
-        $this->SetFont($this->_Font,'B',$this->_Char_Size);
-        $_PosX = ($this->_Column*($this->_ColWidth+$this->_Gutter)) + $this->_Margin_Left;
-        $_PosY = $this->GetY();
-        $this->SetXY($_PosX, $_PosY);
-        $this->Cell($this->_ColWidth * 2 / 3, $this->_LS, $sLetter, 0,1,"C",1);
-
-        // restore color
-        $this->SetFillColor('WHITE');
-        $this->SetTextColor(0);
-        $this->SetFont($this->_Font,'',$this->_Char_Size);
-        $this->SetY($this->GetY() + $this->_LS);
-    }
-
     function sGetChineseName($rsCustomFields, $aRow){
         $numCustomFields = mysql_num_rows($rsCustomFields);
         if ($rsCustomFields == 0) {
@@ -299,34 +279,6 @@ class PDF_Directory extends ChurchInfoReport {
         return "not found";
     }
 
-    // This function formats the string for the address phone info
-    function pGetAddressPhone( $aRow )
-    {
-        extract($aRow);
-
-        $addrPhone = new AddressPhone();
-
-        $addr = "";
-	    if (strlen($fam_Address1)) { $addr .= $fam_Address1;}
-	    if (strlen($fam_Address2)) { $addr .= ",  ".$fam_Address2;}
-        if (strlen($fam_City)) { $addr .= ",  " . $fam_City . ", " . $fam_State . " " . $fam_Zip . "\n";  }
-        if (strlen(trim($fam_Address1)) == 0) $addr = ""; // hide address if no address info.
-        $addrPhone->Address = $addr;
-
-        $addrPhone->Phone = "";
-        if (strlen($fam_WorkPhone)) {
-            $addrPhone->Phone = ExpandPhoneNumber($fam_WorkPhone, $fam_Country, $bWierd);
-        }
-        if (strlen($fam_HomePhone)) {
-            $addrPhone->Phone = ExpandPhoneNumber($fam_HomePhone, $fam_Country, $bWierd);
-        }
-        if (strlen($fam_CellPhone)) {
-            $addrPhone->Phone = ExpandPhoneNumber($fam_CellPhone, $fam_Country, $bWierd);
-        }
-
-        return $addrPhone;
-    }
-
     function addName($aRow)
     {
         extract($aRow);
@@ -347,15 +299,6 @@ class PDF_Directory extends ChurchInfoReport {
         $pHead->Name = trim($per_FirstName . " " . $per_LastName);
 
         $sCountry = SelectWhichInfo($per_Country,$fam_Country,false);
-        //if (strlen($fam_WorkPhone)) {
-        //    $pHead->Phone = ExpandPhoneNumber($fam_WorkPhone, $sCountry, $bWierd);
-        //}
-        //if (strlen($fam_HomePhone)) {
-        //    $pHead->Phone = ExpandPhoneNumber($fam_HomePhone, $sCountry, $bWierd);
-        //}
-        //if (strlen($fam_CellPhone)) {
-        //    $pHead->Phone = ExpandPhoneNumber($fam_CellPhone, $sCountry, $bWierd);
-        //}
         if (strlen($per_WorkPhone)) {
             $pHead->Phone = ExpandPhoneNumber($per_WorkPhone, $sCountry, $bWierd);
         }
@@ -390,157 +333,56 @@ class PDF_Directory extends ChurchInfoReport {
     }
 
     // Number of lines is only for the $text parameter
-    function Add_Record($persons, $children, $addrPhone, $numlines, $fid, $pid)
+    function Add_Record($persons, $numlines, $fid, $pid)
     {
         $this->Check_Lines($numlines, $fid, $pid);
-
-        $first = True;
-        // Home phone as initial phone number. It has highest precedence order.
-        $showAddress = strlen($addrPhone->Address) > 0;
-/*
-        $prevPhone = $addrPhone->Phone;
-
-        if (!$showAddress) {
-          $prevPhone = "";
-        }
-
-
-
         foreach ($persons as $person) {
-          if (!$showAddress && $person->Phone == "") {
-            $person->Phone = $addrPhone->Phone;  // Use home phone if it's not shown.
-          }
-          // hide phone if it's the same as previous person's phone or home phone (if shown). solve the family phone repeat issue.
-          if ($person->Phone != "") {
-            if ($person->Phone == $prevPhone) {
-              $person->Phone = "";
-            } else if ($showAddress && $person->Phone == $addrPhone->Phone) {
-              $person->Phone = "";
-            } else {
-              $prevPhone = $person->Phone;
-            }
-          }
-          $this->Print_Person($person, $first);
-          $first = False;
+		      $this->Print_Person($person);
         }
-*/
-		$prevPhone = array();
-		if ($showAddress && $addrPhone->Phone != "")
-			array_push($prevPhone, $addrPhone->Phone);
-
-		foreach ($persons as $person) {
-          if (!$showAddress && $person->Phone == "")
-            $person->Phone = $addrPhone->Phone;  // Use home phone if it's not shown.
-		  foreach ($prevPhone as $phone) {
-			if ($person->Phone == $phone) {
-				$person->Phone = "";
-				break;
-			}
-		  }
-		  if ($person->Phone != "")
-			array_push($prevPhone, $person->Phone);
-
-		  $this->Print_Person($person, $first);
-          $first = False;
-		}
-
-        // Print children's names.
-        $_PosX = ($this->_Column*($this->_ColWidth+$this->_Gutter)) + $this->_Margin_Left;
-        $_PosY = $this->GetY();
-        $this->SetXY($_PosX, $_PosY);
-        $offset = 0;
-		$childNumber = 1;
-        foreach ($children as $person) {
-		      if (strlen($person->ChineseName)) {
-			      $this->AddFont('CNB','','DroidSansFallback.ttf',true);
-			      $this->SetFont('CNB','',$this->_Char_Size);
- 		        $this->SetXY($_PosX + $offset, $_PosY);
-			      $this->MultiCell($this->_ColWidth, $this->_LS, $person->ChineseName, 0, 'L');
-  			    $offset = $offset + $this->GetStringWidth($person->ChineseName . "  ");
-			  }
-
-		      $this->SetFont($this->_Font,'',$this->_Char_Size);
-		      $this->SetXY($_PosX + $offset, $_PosY);
-			  if ($childNumber++ < count($children))
-				  $person->Name .= ",";
-			    $this->MultiCell($this->_ColWidth, $this->_LS, $person->Name);
-			    $offset = $offset + $this->GetStringWidth($person->Name . "     ");
-		    }
-		    if (count($children)) {
-            $this->SetY($this->GetY() + $this->_LS/2);
-        }
-
-        // Print address line.
-        $_PosX = ($this->_Column*($this->_ColWidth+$this->_Gutter)) + $this->_Margin_Left;
-        $_PosY = $this->GetY();
-        if (strlen($addrPhone->Address)) {
-          $this->SetFont($this->_Font,'',$this->_Char_Size);
-          $this->SetXY($_PosX + $this->_ColWidth/10, $_PosY);
-          $this->MultiCell($this->_ColWidth, $this->_LS, iconv("UTF-8","ISO-8859-1",$addrPhone->Address), 0, 'L');
-          $this->SetXY($_PosX, $_PosY);
-          $this->MultiCell($this->_ColWidth, $this->_LS, iconv("UTF-8","ISO-8859-1",$addrPhone->Phone), 0, 'R');
-          //$this->SetY($this->GetY() + $this->_LS);
-        }
-          $this->SetY($this->GetY() + $this->_LS);
+        $this->SetY($this->GetY() + $this->_LS);
     }
 
-    function Print_Child($person) {
-      $offset = 0;
-		  if (strlen($person->ChineseName)) {
-			  $this->AddFont('CNB','','DroidSansFallback.ttf',true);
-			  $this->SetFont('CNB','',$this->_Char_Size);
-			  $this->MultiCell($this->_ColWidth, $this->_LS, $person->ChineseName, 0, 'L');
-
-			  $this->SetFont($this->_Font,'',$this->_Char_Size);
-			  $this->SetXY($_PosX + $this->_ColWidth/6, $_PosY);
-				$this->MultiCell($this->_ColWidth, $this->_LS, $person->Name);
-		  } else {
-			  $this->SetFont($this->_Font,'',$this->_Char_Size);
-				$this->MultiCell($this->_ColWidth, $this->_LS, $person->Name);
-		  }
-    }
-
-    // This prints the family name in BOLD
-    function Print_Person($person, $first)
+    function Print_Person($person)
     {
         $_PosX = ($this->_Column*($this->_ColWidth+$this->_Gutter)) + $this->_Margin_Left;
         $_PosY = $this->GetY();
         $this->SetFont($this->_Font,'B',$this->_Char_Size);
         $this->SetXY($_PosX, $_PosY);
 
-		  if (strlen($person->ChineseName)) {
-			  $this->AddFont('CNB','','DroidSansFallback.ttf',true);
-			  $this->SetFont('CNB','',$this->_Char_Size + 2);
-			  if ($first) {
-			    $this->AddFont('CNBB','','DroidSansFallback-Bold.ttf',true);
-   			  $this->SetFont('CNBB','',$this->_Char_Size + 2);
-			  }
-			  $this->MultiCell($this->_ColWidth, $this->_LS, $person->ChineseName, 0, 'L');
+        $churchName = "The Home of Christ Church in Fremont";
+        $churchAddr = "4248 Solar Way, Fremont, CA 94538";
+        $churchContact = "510-651-9631     http://www.hoc3.org";
+        $yDelta = $this->_LS * 1.5;
 
-			  $this->SetFont($this->_Font,'',$this->_Char_Size);
-			  $this->SetXY($_PosX + $this->_ColWidth/7, $_PosY);
-			  if (strlen($person->Email)) {
-				  $this->MultiCell($this->_ColWidth, $this->_LS, $person->Name . "   <" . $person->Email . ">");
-			  } else {
-				  $this->MultiCell($this->_ColWidth, $this->_LS, $person->Name);
-			  }
-		  } else {
-			  $this->SetFont($this->_Font,'',$this->_Char_Size);
-			  if ($first) {
-   			  $this->SetFont($this->_Font,'B',$this->_Char_Size);
-			  }
-				$this->MultiCell($this->_ColWidth, $this->_LS, $person->Name);
-			  $this->SetFont($this->_Font,'',$this->_Char_Size);
-			  $this->SetXY($_PosX + $this->_ColWidth/4, $_PosY);
-			  if (strlen($person->Email)) {
-				  $this->MultiCell($this->_ColWidth, $this->_LS, "<" . $person->Email . ">");
-			  }
-		  }
-
-        $this->SetFont($this->_Font,'',$this->_Char_Size);
+        $this->MultiCell($this->_ColWidth, $this->_LS, $churchName, 0, 'C');
+        $_PosY += $yDelta;
         $this->SetXY($_PosX, $_PosY);
-        $this->MultiCell($this->_ColWidth, $this->_LS, $person->Phone, 0, 'R');
-        $this->SetY($this->GetY() + $this->_LS/2);
+
+        $this->Print_Info($_PosX, $_PosY, "Member", $person->Name);
+        $_PosY += $yDelta;
+        $this->SetXY($_PosX, $_PosY);
+
+        $this->Print_Info($_PosX, $_PosY, "Since", "1981");
+        $_PosY += $yDelta;
+        $this->SetXY($_PosX, $_PosY);
+
+        $this->Print_Info($_PosX, $_PosY, "No.", "2016-0102");
+        $_PosY += $yDelta;
+        $this->SetXY($_PosX, $_PosY);
+
+        $this->MultiCell($this->_ColWidth, $this->_LS, $churchAddr, 0, 'C');
+        $_PosY += $yDelta;
+        $this->SetXY($_PosX, $_PosY);
+        $this->MultiCell($this->_ColWidth, $this->_LS, $churchContact, 0, 'C');
+        $_PosY += $yDelta;
+        $this->SetXY($_PosX, $_PosY);
+    }
+
+    function Print_Info($posX, $posY, $str1, $str2) {
+      $_leftWidth = $this->_ColWidth * 3/5;
+      $this->MultiCell($_leftWidth, $this->_LS, $str1, 0, 'R');
+      $this->SetXY($posX + $_leftWidth, $posY);
+      $this->MultiCell($this->_ColWidth * 2/5, $this->_LS, $str2, 0, 'L');
     }
 }
 
@@ -740,120 +582,23 @@ if($mysqlversion >= 4){
 
 $rsRecords = RunQuery($sSQL);
 
-// This is used for the headings for the letter changes.
-// Start out with something that isn't a letter to force the first one to work
-$sSectionWord = "0";
-
 while ($aRow = mysql_fetch_array($rsRecords))
 {
     extract($aRow);
 
-    $addrPhone = $pdf->pGetAddressPhone($aRow);
-
-    // Find Family Properties, hide address if hide_address tag is set.
-    $sSQL = "SELECT * FROM record2property_r2p WHERE r2p_record_ID = " . $per_fam_ID;
-    $rsFamPros = RunQuery($sSQL);
-    while ( $rpField = mysql_fetch_array($rsFamPros) ){
-      extract($rpField);
-      if ($propertyNames[$r2p_pro_ID] == "hide_address") {
-        $addrPhone->Address = "";  // Hide it.
-      }
-      if ($propertyNames[$r2p_pro_ID] == "hide_phone") {
-        $addrPhone->Phone = "";  // Hide it.
-      }
-    }
-
     //$pdf->sSortBy = $SortMe;
     $pdf->sSortBy = $per_LastName;
 
-    $isFamily = false;
-
     $persons = array();
-    $children = array();
-    if ($memberCount > 1) // Here we have a family record.
-    {
-        $iFamilyID = $per_fam_ID;
-        $isFamily = true;
-
-        $pdf->sRecordName = "";
-        $pdf->sLastName = $per_LastName;
-        $bNoRecordName = true;
-
-        // Find the Head of Household
-        $sSQL = "SELECT * FROM $sGroupTable LEFT JOIN family_fam ON per_fam_ID = fam_ID
-            WHERE per_fam_ID = " . $iFamilyID . "
-            AND per_fmr_ID in ($sDirRoleHeads) $sWhereExt $sClassQualifier $sGroupBy";
-        $rsPerson = RunQuery($sSQL);
-
-        if (mysql_num_rows($rsPerson) > 0)
-        {
-            $aHead = mysql_fetch_array($rsPerson);
-            array_push($persons, $pdf->pGetPerson($rsCustomFields, $aHead, $propertyNames));
-            $bNoRecordName = false;
-        }
-
-        // Find the Spouse of Household
-        $sSQL = "SELECT * FROM $sGroupTable LEFT JOIN family_fam ON per_fam_ID = fam_ID
-            WHERE per_fam_ID = " . $iFamilyID . "
-            AND per_fmr_ID in ($sDirRoleSpouses) $sWhereExt $sClassQualifier $sGroupBy";
-        $rsPerson = RunQuery($sSQL);
-
-        if (mysql_num_rows($rsPerson) > 0)
-        {
-            $aSpouse = mysql_fetch_array($rsPerson);
-            array_push($persons, $pdf->pGetPerson($rsCustomFields, $aSpouse, $propertyNames));
-            $bNoRecordName = false;
-        }
-
-        // In case there was no head or spouse, just set record name to family name
-        if ($bNoRecordName)
-            $pdf->sRecordName = $fam_Name;
-
-        // Find the other members of a family
-        $sSQL = "SELECT * FROM $sGroupTable LEFT JOIN family_fam ON per_fam_ID = fam_ID
-            WHERE per_fam_ID = " . $iFamilyID . " AND !(per_fmr_ID in ($sDirRoleHeads))
-            AND !(per_fmr_ID in ($sDirRoleSpouses))  $sWhereExt $sClassQualifier $sGroupBy ORDER BY per_BirthYear,per_FirstName";
-        $rsPerson = RunQuery($sSQL);
-
-        while ($aRow = mysql_fetch_array($rsPerson))
-        {
-            $person = $pdf->pGetPerson($rsCustomFields, $aRow, $propertyNames);
-            if ($person->CellPhone != "" || $person->Email != "") {
-              // The child is printed into a single line if he/she has a cellphone or an email.
-              array_push($persons, $person);
-            } else {
-              // Children are print in the same line with only name is printed.
-              array_push($children, $person);
-            }
-        }
-    }
-    else
-    {
-        array_push($persons, $pdf->pGetPerson($rsCustomFields, $aRow, $propertyNames));
-    }
+    array_push($persons, $pdf->pGetPerson($rsCustomFields, $aRow, $propertyNames));
 
     // Count the number of lines in the output string
     $numlines = count($persons);
-    if (strlen($addrPhone->Address)) {
-      $numlines++;
-    }
-    if (count($children)) {
-      $numlines++;
-    }
 
     if ($numlines > 0)
     {
-        // Add section header
-        if (strtoupper($sSectionWord) != strtoupper($pdf->sSortBy))
-        {
-            $pdf->Check_Lines($numlines+2, 0, 0);
-            //$sSectionWord = strtoupper($pdf->sSortBy);
-            $sSectionWord = $pdf->sSortBy;
-            $pdf->Add_Header($sSectionWord);
-        }
-
         // Add Family/Person Record
-        $pdf->Add_Record($persons, $children, $addrPhone, $numlines, $fid, $pid);  // another hack: added +1
+        $pdf->Add_Record($persons, $numlines, $fid, $pid);  // another hack: added +1
     }
 }
 
@@ -863,8 +608,8 @@ if($mysqlversion == 3 && $mysqlsubversion >= 22){
 }
 header('Pragma: public');  // Needed for IE when using a shared SSL certificate
 
-if ($iPDFOutputType == 1)
-    $pdf->Output("Directory-" . date("Ymd-Gis") . ".pdf", "D");
-else
+#if ($iPDFOutputType == 0)
+#    $pdf->Output("ContactCard-" . date("Ymd-Gis") . ".pdf", "D");
+#else
     $pdf->Output();
 ?>

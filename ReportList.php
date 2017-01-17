@@ -27,10 +27,10 @@ require 'Include/Header.php';
 ?>
 
 <p>
-<a class="MediumText" href="GroupReports.php"><?php 
+<a class="MediumText" href="GroupReports.php"><?php
     echo gettext('Reports on groups and roles'); ?></a>
 <br>
-<?php 
+<?php
     echo gettext('Report on group and roles selected (it may be a multi-page PDF).'); ?>
 </p>
 
@@ -55,6 +55,12 @@ require 'Include/Header.php';
 	<?php echo gettext('Printable contact directory of all members, grouped by family where assigned'); ?>
 	</p>
 
+  <p>
+	<a class="MediumText" href="ContactCards.php"><?php echo gettext('Contact Cards'); ?></a>
+	<br>
+	<?php echo gettext('Printable contact cards of all members'); ?>
+	</p>
+
 <?php /*
 <p>
 <a href=''><?php echo gettext('Members Directory w/Photos'); ?></a>
@@ -63,16 +69,16 @@ require 'Include/Header.php';
 </p> */ ?>
 
 <p>
-<a class="MediumText" href="LettersAndLabels.php"><?php 
+<a class="MediumText" href="LettersAndLabels.php"><?php
     echo gettext('Letters and Mailing Labels'); ?></a>
-<br><?php 
+<br><?php
     echo gettext('Generate letters and mailing labels.'); ?>
 </p>
 
 <p>
-<a class="MediumText" href="SundaySchool.php"><?php 
+<a class="MediumText" href="SundaySchool.php"><?php
     echo gettext('Sunday School Reports'); ?></a>
-<br><?php 
+<br><?php
     echo gettext('Generate class lists and attendance sheets'); ?>
 </p>
 
@@ -80,8 +86,8 @@ require 'Include/Header.php';
     if ($_SESSION['bFinance']) {
 	echo '<p>';
 	echo '<a class="MediumText" href="FinancialReports.php">';
-    echo gettext('Financial Reports')."</a><br>\n"; 
-    echo gettext('Pledges and Payments')."</p>"; 
+    echo gettext('Financial Reports')."</a><br>\n";
+    echo gettext('Pledges and Payments')."</p>";
 }
 ?>
 
@@ -119,12 +125,12 @@ $numRows = mysql_num_rows($rsOpps);
 </p>
 
 
-<?php 
+<?php
 if ($bUSAddressVerification) {
     echo '<p>';
 	echo '<a class="MediumText" href="USISTAddressVerification.php">';
     echo gettext('US Address Verification Report')."</a><br>\n";
-    echo gettext('Generate report comparing all US family addresses '. 
+    echo gettext('Generate report comparing all US family addresses '.
 		'with United States Postal Service Standard Address Format.<br>')."\n";
 }
 ?>
