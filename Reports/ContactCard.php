@@ -37,14 +37,6 @@ if (!$bCreateDirectory) {
 class Person {
   public $Name;
   public $ChineseName;
-  public $Email;
-  public $Phone;
-  public $CellPhone;
-}
-
-class AddressPhone {
-  public $Address;
-  public $Phone;
 }
 
 class PDF_Directory extends ChurchInfoReport {
@@ -100,38 +92,6 @@ class PDF_Directory extends ChurchInfoReport {
             $this->Cell(0,10, $iPageNumber,0,0,'C');
         }
     }
-
-    function TitlePage()
-    {
-        global $sChurchName;
-        global $sDirectoryDisclaimer;
-        global $sChurchAddress;
-        global $sChurchCity;
-        global $sChurchState;
-        global $sChurchZip;
-        global $sChurchPhone;
-
-        //Select Arial bold 15
-        $this->SetFont($this->_Font,'B',15);
-
-        if (is_readable($this->bDirLetterHead))
-            $this->Image($this->bDirLetterHead,10,5,190);
-
-        //Line break
-        $this->Ln(5);
-        //Move to the right
-        $this->MultiCell(197,10,"\n\n\n". $sChurchName . "\n\n" . gettext("Directory") . "\n\n",0,'C');
-        $this->Ln(5);
-        $today = date("F j, Y");
-        $this->MultiCell(197,10,$today . "\n\n",0,'C');
-
-        $sContact = sprintf("%s\n%s, %s  %s\n\n%s\n\n", $sChurchAddress, $sChurchCity, $sChurchState, $sChurchZip, $sChurchPhone);
-        $this->MultiCell(197,10,$sContact,0,'C');
-        $this->Cell(10);
-        $this->MultiCell(197,10,$sDirectoryDisclaimer,0,'C');
-        $this->AddPage();
-    }
-
 
     // Sets the character size
     // This changes the line height too
@@ -298,36 +258,7 @@ class PDF_Directory extends ChurchInfoReport {
 
         $pHead->Name = trim($per_FirstName . " " . $per_LastName);
 
-        $sCountry = SelectWhichInfo($per_Country,$fam_Country,false);
-        if (strlen($per_WorkPhone)) {
-            $pHead->Phone = ExpandPhoneNumber($per_WorkPhone, $sCountry, $bWierd);
-        }
-        if (strlen($per_HomePhone)) {
-            $pHead->Phone = ExpandPhoneNumber($per_HomePhone, $sCountry, $bWierd);
-        }
-        if (strlen($per_CellPhone)) {
-            $pHead->Phone = ExpandPhoneNumber($per_CellPhone, $sCountry, $bWierd);
-            $pHead->CellPhone = ExpandPhoneNumber($per_CellPhone, $sCountry, $bWierd);
-        }
-
-        if (strlen($per_WorkEmail)) $pHead->Email = $per_WorkEmail;
-        if (strlen($per_Email)) $pHead->Email = $per_Email;
-
-        // TODO(ferryzhou): add chinese name from custom field.
         $pHead->ChineseName = $this->sGetChineseName($rsCustomFields, $aHead);
-
-        // Find Person Properties
-        $sSQL = "SELECT * FROM record2property_r2p WHERE r2p_record_ID = " . $per_ID ;
-        $rsPerPros = RunQuery($sSQL);
-        while ( $rpField = mysql_fetch_array($rsPerPros) ){
-          extract($rpField);
-          if ($propertyNames[$r2p_pro_ID] == "hide_phone") {
-            $pHead->Phone = "";  // Hide it.
-          }
-          if ($propertyNames[$r2p_pro_ID] == "hide_email") {
-            $pHead->Email = "";  // Hide it.
-          }
-        }
 
         return $pHead;
     }
@@ -346,15 +277,30 @@ class PDF_Directory extends ChurchInfoReport {
     {
         $_PosX = ($this->_Column*($this->_ColWidth+$this->_Gutter)) + $this->_Margin_Left;
         $_PosY = $this->GetY();
-        $this->SetFont($this->_Font,'B',$this->_Char_Size);
+        $this->SetFont($this->_Font,'',$this->_Char_Size);
         $this->SetXY($_PosX, $_PosY);
 
+        $churchNameCN = "基督之家第三家";
         $churchName = "The Home of Christ Church in Fremont";
         $churchAddr = "4248 Solar Way, Fremont, CA 94538";
         $churchContact = "510-651-9631     http://www.hoc3.org";
         $yDelta = $this->_LS * 1.5;
 
+        $this->AddFont('CNB','','DroidSansFallback-Bold.ttf',true);
+
+        $this->SetFont('CNB','',$this->_Char_Size);
+        $this->MultiCell($this->_ColWidth, $this->_LS, $churchNameCN, 0, 'C');
+        $this->SetFont($this->_Font,'',$this->_Char_Size);
+        $_PosY += $yDelta;
+        $this->SetXY($_PosX, $_PosY);
+
         $this->MultiCell($this->_ColWidth, $this->_LS, $churchName, 0, 'C');
+        $_PosY += $yDelta;
+        $this->SetXY($_PosX, $_PosY);
+
+			  $this->SetFont('CNB','',$this->_Char_Size);
+        $this->Print_Info($_PosX, $_PosY, "姓名", $person->ChineseName);
+        $this->SetFont($this->_Font,'',$this->_Char_Size);
         $_PosY += $yDelta;
         $this->SetXY($_PosX, $_PosY);
 
@@ -427,19 +373,6 @@ foreach ($_POST["sDirRoleChild"] as $Child)
 }
 
 // Get other settings
-$bDirAddress = isset($_POST["bDirAddress"]);
-$bDirWedding = isset($_POST["bDirWedding"]);
-$bDirBirthday = isset($_POST["bDirBirthday"]);
-$bDirFamilyPhone = isset($_POST["bDirFamilyPhone"]);
-$bDirFamilyWork = isset($_POST["bDirFamilyWork"]);
-$bDirFamilyCell = isset($_POST["bDirFamilyCell"]);
-$bDirFamilyEmail = isset($_POST["bDirFamilyEmail"]);
-$bDirPersonalPhone = isset($_POST["bDirPersonalPhone"]);
-$bDirPersonalWork = isset($_POST["bDirPersonalWork"]);
-$bDirPersonalCell = isset($_POST["bDirPersonalCell"]);
-$bDirPersonalEmail = isset($_POST["bDirPersonalEmail"]);
-$bDirPersonalWorkEmail = isset($_POST["bDirPersonalWorkEmail"]);
-$bDirPhoto = isset($_POST["bDirPhoto"]);
 
 $sChurchName = FilterInput($_POST["sChurchName"]);
 $sDirectoryDisclaimer = FilterInput($_POST["sDirectoryDisclaimer"]);
@@ -486,8 +419,6 @@ if ($rsConfig) {
 }
 
 $pdf->AddPage();
-
-if ($bDirUseTitlePage) $pdf->TitlePage();
 
 $sClassQualifier = "";
 if (strlen($sDirClassifications)) $sClassQualifier = "AND per_cls_ID in (" . $sDirClassifications . ")";

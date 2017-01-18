@@ -4,6 +4,7 @@ if [ "$(uname)" == "Darwin" ]; then
   DST=/Applications/XAMPP/htdocs/churchinfo
 fi
 
-cp Reports/*.php $DST/Reports/ 
+cp Reports/*.php $DST/Reports/
 cp *.php $DST/
-cp -R Include/ $DST/ 
+# For mac, cannot use cp -R Include/. Otherwise, it copy contents not dir.
+cp -R Include $DST/
