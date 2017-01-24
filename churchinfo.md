@@ -41,6 +41,9 @@ Mac
 
 For Mac, the XAMPP root directory is /Applications/XAMPP. Replace C:\xampp with /Applications/XAMPP in above instructions.
 
+To start XAMPP:
+
+SUDO /Applications/XAMPP/xamppfiles/xampp start
 
 Tips
 ====
